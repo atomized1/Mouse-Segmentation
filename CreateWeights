@@ -1,0 +1,118 @@
+import tensorflow as tf
+import nibabel as nib
+import keras
+import numpy as np
+import keyboard
+import matplotlib.pyplot as plt
+
+
+def main():
+    input_layer = keras.layers.Input(shape=(32, 148, 100))
+    conv1 = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
+    pool1 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1)
+    conv2 = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(pool1)
+    pool2 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv2)
+    conv3 = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(pool2)
+
+    dconv3 = keras.layers.Conv2DTranspose(filters=96, kernel_size=(3, 3), padding='same')(conv3)
+    unpool2 = keras.layers.UpSampling2D(size=(2, 2))(dconv3)
+    cat2 = keras.layers.concatenate([conv2, unpool2])
+    dconv2 = keras.layers.Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same')(cat2)
+    unpool1 = keras.layers.UpSampling2D(size=(2, 2))(dconv2)
+    cat1 = keras.layers.concatenate([conv1, unpool1])
+    dconv1 = keras.layers.Conv2DTranspose(filters=32, kernel_size=(3, 3), padding='same')(cat1)
+    print(unpool2.shape)
+
+    output = keras.layers.Conv2D(filters=100, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1)
+
+    model = keras.models.Model(inputs=input_layer, output=output)
+    opt = keras.optimizers.Adam()
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy])
+
+    image = nib.load('C:/Users/adamc/PycharmProjects/Modeling/skullstrip-master/skullstrip-master/RARE/Animal_191205_1_B50027_15_1_T1_RARE_MEMRI_exercise.nii.gz')
+    data = image.get_fdata()
+    mask = nib.load('C:/Users/adamc/PycharmProjects/Modeling/skullstrip-master/skullstrip-master/Masks/191205_1_Mask.nii.gz')
+    truth = mask.get_fdata()
+
+    arrayData = np.array([data[0:148, 0:32]])
+    arrayTruth = np.array([truth[0:148, 0:32]])
+
+    for x in range(32, len(data[0]), 32):
+        arrayData = np.append(arrayData, [data[0:148, x:x+32]], axis=0)
+        arrayTruth = np.append(arrayTruth, [truth[0:148, x:x+32]], axis=0)
+
+    print(len(arrayData[0]))
+    print(len(arrayData[0][0]))
+    arrayData = np.rot90(arrayData, axes=(1, 2))
+    arrayTruth = np.rot90(arrayTruth, axes=(1, 2))
+    print(len(arrayData))
+    print(len(arrayData[0][0]))
+
+    model.fit(arrayData, arrayTruth, epochs=250, batch_size=8)
+
+    predictions = model.predict(arrayData[3:4])
+    predictions = np.round(predictions)
+
+    plt.ion()
+    plt.axis('off')
+    plt.figure(0)
+
+    print(len(predictions[0][0][0]))
+
+    plt.imshow(arrayData[3, :, :, 0], cmap='gray')
+    plt.imshow(predictions[0, :, :, 0], alpha=0.2)
+    plt.draw()
+    plt.pause(0.0001)
+
+    x = 0
+    View = 0
+
+    while True:
+        if View == 0:
+            if x > len(arrayData[3, 0, 0]) - 1:
+                x = len(arrayData[3, 0, 0]) - 1
+            plt.clf()
+            plt.imshow(arrayData[3, :, :, x], cmap='gray')
+            plt.imshow(predictions[0, :, :, x], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.001)
+        if View == 1:
+            if x > len(arrayData[3][0]) - 1:
+                x = len(predictions[0][0]) - 1
+            plt.clf()
+            plt.imshow(arrayData[3, :, x, :], cmap='gray')
+            plt.imshow(predictions[0, :, x, :], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.001)
+        if View == 2:
+            if x > len(arrayData[0]) - 1:
+                x = len(predictions[0]) - 1
+            plt.clf()
+            plt.imshow(arrayData[3, x, :, :], cmap='gray')
+            plt.imshow(predictions[0, x, :, :], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.001)
+
+        if keyboard.read_key() == "t":
+            x += 1
+            print(x)
+        elif keyboard.read_key() == "g":
+            x -= 1
+            print(x)
+        elif keyboard.read_key() == "w":
+            View = 0
+        elif keyboard.read_key() == "e":
+            View = 1
+        elif keyboard.read_key() == "r":
+            View = 2
+        elif keyboard.read_key() == "y":
+            break
+        if x < 0:
+            x = 0
+
+
+if __name__ == "__main__":
+    main()

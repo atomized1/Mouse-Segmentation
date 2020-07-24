@@ -84,7 +84,7 @@ def display(data, model):
 
     plt.ion()
     plt.axis('off')
-    plt.figure(0)
+    plt.figure(4)
 
     print(len(predictions[0][0][0]))
 
@@ -169,7 +169,7 @@ def main():
 
     cp_callback = keras.callbacks.ModelCheckpoint(filepath=os.path.join(dirnam, "models/cp-{epoch:04d}.ckpt"), verbose=1, save_weights_only=True, period=10)
     model = keras.models.Model(inputs=input_layer, output=output)
-    opt = keras.optimizers.Adam()
+    opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
     arrayData, arrayTruth = getData()
@@ -184,17 +184,17 @@ def main():
     plt.figure(1)
     plt.plot(xvals, history.history['binary_accuracy'])
     plt.savefig('plotAccuracy.png')
-    np.savetxt("Accuracy.csv", history.history['binary_accuracy'], delimiter=",")
+    np.savetxt(os.path.join(dirnam, "Accuracy.csv"), history.history['binary_accuracy'], delimiter=",")
 
-    plt.figure(1)
+    plt.figure(2)
     plt.plot(xvals, history.history['loss'])
     plt.savefig('plotLoss.png')
-    np.savetxt("Loss.csv", history.history['loss'], delimiter=",")
+    np.savetxt(os.path.join(dirnam, "Loss.csv"), history.history['loss'], delimiter=",")
 
-    plt.figure(1)
+    plt.figure(3)
     plt.plot(xvals, history.history['dice_metric'])
     plt.savefig('plotDice.png')
-    np.savetxt("Dice.csv", history.history['dice_metric'], delimiter=",")
+    np.savetxt(os.path.join(dirnam, "Dice.csv"), history.history['dice_metric'], delimiter=",")
 
     display(arrayData, model)
 

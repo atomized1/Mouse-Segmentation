@@ -7,6 +7,7 @@ import os
 
 dirnam = os.path.dirname(__file__)
 epochs = 20
+BURST = 10
 
 def dice_metric(y_true, y_pred):
 
@@ -74,7 +75,7 @@ def getData():
 
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 332))
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 332), dtype=np.dtype('int32'))
     for x in range(0, len(mask)):
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
@@ -261,6 +262,10 @@ def main():
 
     output = keras.layers.Conv2D(filters=332, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
 
+    model = keras.models.Model(input_layer, output)
+    opt = keras.optimizers.Adam(learning_rate=0.0005)
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
+
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
@@ -269,21 +274,20 @@ def main():
     print(len(layerTruth[0]))
     print(len(layerTruth[0, 0]))
     print(layerTruth[0, 0, 0])
+    for x in range(10, len(layerTruth), 10):
+        arrayTruth = convertTruth(layerTruth[x - 10:x])
 
-    arrayTruth = convertTruth(layerTruth)
+        #neighbors = detectNeighbors(layerTruth[x:x + 30])
 
-    neighbors = detectNeighbors(layerTruth)
+        #createModels(neighbors, layerTruth)
 
-    createModels(neighbors, layerTruth)
+        #print(neighbors)
+        print(len(arrayData))
 
-    print(neighbors)
+        history = model.fit(arrayData[x - 10:x], arrayTruth, epochs=epochs, batch_size=10)
 
-    model = keras.models.Model(input_layer, output)
-    opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
-
-    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=50)
     model.save(os.path.join(dirnam, "modelsGlobal/Model"))
+
 
 if __name__ == "__main__":
     main()

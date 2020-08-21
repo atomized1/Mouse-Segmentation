@@ -61,7 +61,7 @@ invivoAPOE1/B53245_invivoAPOE1_labels.nii.gz
 maskedimages/B53257_T1_masked.nii.gz
 invivoAPOE1/B53257_invivoAPOE1_labels.nii.gz
 maskedimages/B53269_T1_masked.nii.gz
-invivoAPOE1/B53259_invivoAPOE1_labels.nii.gz
+invivoAPOE1/B53269_invivoAPOE1_labels.nii.gz
 maskedimages/B53279_T1_masked.nii.gz
 invivoAPOE1/B53279_invivoAPOE1_labels.nii.gz
 maskedimages/B53281_T1_masked.nii.gz

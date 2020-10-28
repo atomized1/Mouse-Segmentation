@@ -5,9 +5,10 @@ import numpy as np
 import keyboard
 import matplotlib.pyplot as plt
 import os
+from random import randint
 
 dirnam = os.path.dirname(__file__)
-epochs = 50
+epochs = 20
 
 def dice_metric(y_true, y_pred):
 #A Fuction that calculates the dice score for the predicted and true regions
@@ -40,40 +41,113 @@ def getData():
     # Outputs: Arrays containing slices of each image
 
     alt = 0
-    imageList = []
-    maskList = []
+    countA = 0
+    countB = 0
+    imageListTrain = []
+    imageListPredict = []
+    maskListTrain = []
+    maskListPredict = []
     with open(os.path.normpath(os.path.join(dirnam, '2.txt'))) as files:
         for arrayDataPath in files:
             if alt == 0:
-                imageList.append(arrayDataPath.strip())
+                if countA <= 6:
+                    imageListTrain.append(arrayDataPath.strip())
+                    countA += 1
+                else:
+                    imageListPredict.append(arrayDataPath.strip())
+                    countA += 1
+                    if countA == 10:
+                        countA = 0
                 alt = 1
             elif alt == 1:
-                maskList.append(arrayDataPath.strip())
+                if countB <= 6:
+                    maskListTrain.append(arrayDataPath.strip())
+                    countB += 1
+                else:
+                    maskListPredict.append(arrayDataPath.strip())
+                    countB += 1
+                    if countB == 10:
+                        countB = 0
                 alt = 0
+
     slices = 0
-    print(os.path.join(dirnam, imageList[0]))
-    for x in range(0, len(imageList)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[x])))
+    print(os.path.join(dirnam, imageListTrain[0]))
+    for x in range(0, len(imageListTrain)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListTrain[x])))
         data = image.get_fdata()
         slices = slices + len(data[0])
         print(slices)
+
+    slicesP = 0
+    for x in range(0, len(imageListPredict)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListPredict[x])))
+        data = image.get_fdata()
+        slicesP = slicesP + len(data[0])
+        print(slicesP)
+
     arrayData = np.empty([slices, 1, 148, 100])
     arrayTruth = np.empty([slices, 1, 148, 100])
+    arrayPredictData = np.empty([slicesP, 1, 148, 100])
+    arrayPredictTruth = np.empty([slicesP, 1, 148, 100])
+
     print(len(arrayData[0]))
     start = 0
-    for file in range(0, len(imageList)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[file])))
+    for file in range(0, len(imageListTrain)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListTrain[file])))
         data = image.get_fdata()
-        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
+        data = normalize(data)
+        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskListTrain[file])))
         truth = mask.get_fdata()
         data = np.rot90(data, axes=(0, 1))
         truth = np.rot90(truth, axes=(0, 1))
         for x in range(0, len(data)):
-                arrayData[x + start, 0] = data[x, 0:148]
-                arrayTruth[x + start, 0] = truth[x, 0:148]
+            arrayData[x + start, 0] = data[x, 0:148]
+            arrayTruth[x + start, 0] = truth[x, 0:148]
         start = start + len(data)
         print("File Loaded")
-    return arrayData, arrayTruth
+
+    start = 0
+    for file in range(0, len(imageListPredict)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListPredict[file])))
+        data = image.get_fdata()
+        data = normalize(data)
+        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskListPredict[file])))
+        truth = mask.get_fdata()
+        data = np.rot90(data, axes=(0, 1))
+        truth = np.rot90(truth, axes=(0, 1))
+        for x in range(0, len(data)):
+            arrayPredictData[x + start, 0] = data[x, 0:148]
+            arrayPredictTruth[x + start, 0] = truth[x, 0:148]
+        start = start + len(data)
+        print("File Loaded")
+    return arrayData, arrayTruth, arrayPredictData, arrayPredictTruth
+
+
+def normalize(data):
+    total = 0
+    count = 0
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                total += data[x][y][z]
+                count += 1
+
+    mean = total / count
+    totalVariance = 0
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                variance = pow(data[x][y][z] - mean, 2)
+                totalVariance += variance
+
+    Std = totalVariance / count
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                data[x][y][z] -= mean
+                data[x][y][z] /= Std
+
+    return data
 
 
 def display(data, model):
@@ -172,13 +246,13 @@ def main():
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
-    arrayData, arrayTruth = getData()
+    arrayData, arrayTruth, arrayEval, arrayTruthEval = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     arrayTruth = np.rot90(arrayTruth, axes=(1, 3))
+    arrayEval = np.rot90(arrayTruth, axes=(1, 3))
+    arrayTruthEval = np.rot90(arrayTruth, axes=(1, 3))
 
     history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=[cp_callback], batch_size=50)
-
-    print(history.history['loss'])
 
     xvals = np.arange(epochs)
     plt.figure(1)
@@ -195,6 +269,17 @@ def main():
     plt.plot(xvals, history.history['dice_metric'])
     plt.savefig('plotDice.png')
     np.savetxt(os.path.join(dirnam, "Dice.csv"), history.history['dice_metric'], delimiter=",")
+
+    predictions = model.predict(arrayEval)
+    AvgDiceScore = 0
+    count = 0
+    for x in range(0, len(predictions)):
+        for y in range(0, len(predictions[1])):
+            for z in range(0, len(predictions[1][1])):
+                AvgDiceScore += dice_metric(predictions[x][y][z], arrayTruthEval[x][y][z])
+                count += 1
+    AvgDiceScore /= count
+    print("The Testing set had an average Dice score of ", AvgDiceScore)
 
     display(arrayData, model)
 

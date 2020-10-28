@@ -47,7 +47,7 @@ def getData():
     imageListPredict = []
     maskListTrain = []
     maskListPredict = []
-    with open(os.path.normpath(os.path.join(dirnam, '2.txt'))) as files:
+    with open(os.path.normpath(os.path.join(dirnam, 'files.txt'))) as files:
         for arrayDataPath in files:
             if alt == 0:
                 if countA <= 6:

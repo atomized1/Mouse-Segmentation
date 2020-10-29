@@ -40,14 +40,19 @@ def getData():
     # Inputs: none
     # Outputs: Arrays containing slices of each image
 
+    #variables used to divide up data
     alt = 0
     countA = 0
     countB = 0
+
+    #The empty arrays that will store filenames for each set
     imageListTrain = []
     imageListPredict = []
     maskListTrain = []
     maskListPredict = []
-    with open(os.path.normpath(os.path.join(dirnam, 'files.txt'))) as files:
+
+    #A short loop to split all the data into one of the 4 lists.
+    with open(os.path.normpath(os.path.join(dirnam, '2.txt'))) as files:
         for arrayDataPath in files:
             if alt == 0:
                 if countA <= 6:
@@ -70,77 +75,35 @@ def getData():
                         countB = 0
                 alt = 0
 
-    slices = 0
-    print(os.path.join(dirnam, imageListTrain[0]))
-    for x in range(0, len(imageListTrain)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListTrain[x])))
-        data = image.get_fdata()
-        slices = slices + len(data[0])
-        print(slices)
+    #Loading in all the data from the filenames using the initialize function defined below
+    arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
+    arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
 
-    slicesP = 0
-    for x in range(0, len(imageListPredict)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListPredict[x])))
-        data = image.get_fdata()
-        slicesP = slicesP + len(data[0])
-        print(slicesP)
-
-    arrayData = np.empty([slices, 1, 148, 100])
-    arrayTruth = np.empty([slices, 1, 148, 100])
-    arrayPredictData = np.empty([slicesP, 1, 148, 100])
-    arrayPredictTruth = np.empty([slicesP, 1, 148, 100])
-
-    print(len(arrayData[0]))
-    start = 0
-    for file in range(0, len(imageListTrain)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListTrain[file])))
-        data = image.get_fdata()
-        data = normalize(data)
-        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskListTrain[file])))
-        truth = mask.get_fdata()
-        data = np.rot90(data, axes=(0, 1))
-        truth = np.rot90(truth, axes=(0, 1))
-        for x in range(0, len(data)):
-            arrayData[x + start, 0] = data[x, 0:148]
-            arrayTruth[x + start, 0] = truth[x, 0:148]
-        start = start + len(data)
-        print("File Loaded")
-
-    start = 0
-    for file in range(0, len(imageListPredict)):
-        image = nib.load(os.path.normpath(os.path.join(dirnam, imageListPredict[file])))
-        data = image.get_fdata()
-        data = normalize(data)
-        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskListPredict[file])))
-        truth = mask.get_fdata()
-        data = np.rot90(data, axes=(0, 1))
-        truth = np.rot90(truth, axes=(0, 1))
-        for x in range(0, len(data)):
-            arrayPredictData[x + start, 0] = data[x, 0:148]
-            arrayPredictTruth[x + start, 0] = truth[x, 0:148]
-        start = start + len(data)
-        print("File Loaded")
     return arrayData, arrayTruth, arrayPredictData, arrayPredictTruth
 
 
 def normalize(data):
+    #initializing some variables so I can calculate mean intensity
     total = 0
     count = 0
+    #A loop to calculate that mean
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
                 total += data[x][y][z]
                 count += 1
-
     mean = total / count
+
+    #Using that mean to calculate variance, and then Standard deviation
     totalVariance = 0
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
                 variance = pow(data[x][y][z] - mean, 2)
                 totalVariance += variance
-
     Std = totalVariance / count
+
+    #Adjusting all values appropriately
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
@@ -150,8 +113,41 @@ def normalize(data):
     return data
 
 
+def initialize(imageList, maskList):
+    #Counting how many slices we need to load in, then preallocating arrays of that size
+    slices = 0
+    print(os.path.join(dirnam, imageList[0]))
+    for x in range(0, len(imageList)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[x])))
+        data = image.get_fdata()
+        slices = slices + len(data[0])
+        print(slices)
+
+    arrayData = np.empty([slices, 1, 148, 100])
+    arrayTruth = np.empty([slices, 1, 148, 100])
+
+    #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
+    start = 0
+    for file in range(0, len(imageList)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[file])))
+        data = image.get_fdata()
+        data = normalize(data) #Adjusting the data using mean and std
+        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
+        truth = mask.get_fdata()
+        data = np.rot90(data, axes=(0, 1))  #Rotating data so the thickest side is in the 0 index
+        truth = np.rot90(truth, axes=(0, 1))
+        for x in range(0, len(data)):
+            arrayData[x + start, 0] = data[x, 0:148]
+            arrayTruth[x + start, 0] = truth[x, 0:148]
+        start = start + len(data)
+        print("File Loaded")
+
+    return arrayData, arrayTruth
+
+
 def display(data, model):
 
+    #Saving the model, and generating the visual to insure it worked
     model.save('myModel')
     predictions = model.predict(data[50:51])
     predictions = np.round(predictions)
@@ -218,6 +214,14 @@ def display(data, model):
 
 
 def main():
+    #Layers to construct the model.
+    #Each unit of the U-net consists of 2 convultional layers 1 pooling/unpooling layer
+    #The kernel siez for these are 3x3 and 2x2 respectively
+    #All layers pad to insure data dimensions stay constant before and after model
+    #Skip connections connect pooling and upooling layers of the same data size using concatenation
+    #All layers use rectiliar units, except the last layer which uses sigmoidal.
+    #Rectilinear was chosen to effectively weed out unimportant data, and the sigmoidal was used because it looks like a percent
+    #Email me any questions
     input_layer = keras.layers.Input(shape=(100, 148, 1))
     conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
     conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
@@ -241,19 +245,27 @@ def main():
 
     output = keras.layers.Conv2D(filters=1, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
 
+    #This saves our model every 10 epochs, just incase it is better than the final/we crash
     cp_callback = keras.callbacks.ModelCheckpoint(filepath=os.path.join(dirnam, "models/cp-{epoch:04d}.ckpt"), verbose=1, save_weights_only=True, period=10)
+
+    #Compiling the model.  Learning rate turned down because experimentally it does better at this value
+    #Cross entropy used rather than dice score because experimentally causes model to converge to local min faster
     model = keras.models.Model(inputs=input_layer, output=output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
+    #Loading in all our data using massive getData function defined above.
     arrayData, arrayTruth, arrayEval, arrayTruthEval = getData()
+    #Rotating data 1 more time, for thickness reasons
     arrayData = np.rot90(arrayData, axes=(1, 3))
     arrayTruth = np.rot90(arrayTruth, axes=(1, 3))
     arrayEval = np.rot90(arrayTruth, axes=(1, 3))
     arrayTruthEval = np.rot90(arrayTruth, axes=(1, 3))
 
+    #Saving the history of the model generation to be turned into graphs
     history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=[cp_callback], batch_size=50)
 
+    #Creating figures plotting various metrics
     xvals = np.arange(epochs)
     plt.figure(1)
     plt.plot(xvals, history.history['binary_accuracy'])

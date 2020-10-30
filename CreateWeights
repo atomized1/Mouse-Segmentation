@@ -213,6 +213,33 @@ def display(data, model):
             x = 0
 
 
+def ROCGen(predict, truth):
+    cutoffPoints = 10
+    scores = np.empty(cutoffPoints)
+    for cutoff in range(0, 1, 1/cutoffPoints):
+        tempPred = predict
+        overlap = 0
+        count = 0
+        for x in range(0, len(predict)):
+            for y in range(0, len(predict[1])):
+                for z in range(0, len(predict[1][1])):
+                    if tempPred[x][y][z] > cutoff:
+                        tempPred[x][y][z] = 1
+                    else:
+                        tempPred[x][y][z] = 0
+
+                    if tempPred[x][y][z] == truth:
+                        overlap += 2
+
+                    count += 1
+        scores[cutoff * cutoffPoints] = overlap / count
+    xvals = np.arrange(cutoffPoints)
+    plt.figure(1)
+    plt.plot(xvals, scores)
+    plt.savefig('ROC.png')
+    np.savetxt(os.path.join(dirnam, "ROC.csv"), scores, delimiter=",")
+
+
 def main():
     #Layers to construct the model.
     #Each unit of the U-net consists of 2 convultional layers 1 pooling/unpooling layer
@@ -265,7 +292,7 @@ def main():
     #Saving the history of the model generation to be turned into graphs
     history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=[cp_callback], batch_size=50)
 
-    #Creating figures plotting various metrics
+    #
     xvals = np.arange(epochs)
     plt.figure(1)
     plt.plot(xvals, history.history['binary_accuracy'])
@@ -292,6 +319,8 @@ def main():
                 count += 1
     AvgDiceScore /= count
     print("The Testing set had an average Dice score of ", AvgDiceScore)
+    
+    ROCGen(predictions, arrayTruthEval)
 
     display(arrayData, model)
 

@@ -35,6 +35,32 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 
+def dice_metric_thresh(y_true, y_pred, thresh):
+#A Fuction that calculates the dice score for the predicted and true regions
+#Inputs: The predicted and true labels of what in the image is skull
+#Outputs: A dice score
+
+    threshold = thresh
+
+    mask = y_pred > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_pred = tf.multiply(y_pred, mask)
+    mask = y_true > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_true = tf.multiply(y_true, mask)
+    y_true = tf.cast(y_true, dtype=tf.float32)
+
+    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
+    l = tf.reduce_sum(y_pred)
+    r = tf.reduce_sum(y_true)
+
+    hard_dice = (2. * inse) / (l + r)
+
+    hard_dice = tf.reduce_mean(hard_dice)
+
+    return hard_dice
+
+
 def getData():
     # A fuction that loads in the data from a list of files
     # Inputs: none
@@ -214,30 +240,31 @@ def display(data, model):
 
 
 def ROCGen(predict, truth):
-    cutoffPoints = 10
-    scores = np.empty(cutoffPoints)
-    for cutoff in range(0, 1, 1/cutoffPoints):
-        tempPred = predict
-        overlap = 0
-        count = 0
-        for x in range(0, len(predict)):
-            for y in range(0, len(predict[1])):
-                for z in range(0, len(predict[1][1])):
-                    if tempPred[x][y][z] > cutoff:
-                        tempPred[x][y][z] = 1
-                    else:
-                        tempPred[x][y][z] = 0
+    cutoffPoints = 100
+    truePosRate = np.empty(cutoffPoints)
+    falsePosRate = np.empty(cutoffPoints)
+    for cutoff in range(0, cutoffPoints):
+        mask = predict > cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        predPos = tf.multiply(predict, mask)
+        mask = truth > cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        truthPos = tf.multiply(truth, mask)
+        mask = truth < cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        truthNeg = tf.multiply(truth, mask)
 
-                    if tempPred[x][y][z] == truth:
-                        overlap += 2
+        truePos = tf.reduce_sum(tf.multiply(predPos, truthPos))
+        truePosRate[cutoff] = truePos
 
-                    count += 1
-        scores[cutoff * cutoffPoints] = overlap / count
-    xvals = np.arrange(cutoffPoints)
+        falsePos = tf.reduce_sum(tf.multiply(predPos, truthNeg))
+        falsePosRate[cutoff] = falsePos
+
     plt.figure(1)
-    plt.plot(xvals, scores)
+    plt.plot(falsePosRate, truePosRate)
     plt.savefig('ROC.png')
-    np.savetxt(os.path.join(dirnam, "ROC.csv"), scores, delimiter=",")
+    np.savetxt(os.path.join(dirnam, "ROCP.csv"), truePosRate, delimiter=",")
+    np.savetxt(os.path.join(dirnam, "ROCF.csv"), falsePosRate, delimiter=",")
 
 
 def main():
@@ -310,15 +337,6 @@ def main():
     np.savetxt(os.path.join(dirnam, "Dice.csv"), history.history['dice_metric'], delimiter=",")
 
     predictions = model.predict(arrayEval)
-    AvgDiceScore = 0
-    count = 0
-    for x in range(0, len(predictions)):
-        for y in range(0, len(predictions[1])):
-            for z in range(0, len(predictions[1][1])):
-                AvgDiceScore += dice_metric(predictions[x][y][z], arrayTruthEval[x][y][z])
-                count += 1
-    AvgDiceScore /= count
-    print("The Testing set had an average Dice score of ", AvgDiceScore)
 
     ROCGen(predictions, arrayTruthEval)
 

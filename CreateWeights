@@ -286,8 +286,8 @@ def main():
     #Rotating data 1 more time, for thickness reasons
     arrayData = np.rot90(arrayData, axes=(1, 3))
     arrayTruth = np.rot90(arrayTruth, axes=(1, 3))
-    arrayEval = np.rot90(arrayTruth, axes=(1, 3))
-    arrayTruthEval = np.rot90(arrayTruth, axes=(1, 3))
+    arrayEval = np.rot90(arrayEval, axes=(1, 3))
+    arrayTruthEval = np.rot90(arrayTruthEval, axes=(1, 3))
 
     #Saving the history of the model generation to be turned into graphs
     history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=[cp_callback], batch_size=50)
@@ -319,7 +319,7 @@ def main():
                 count += 1
     AvgDiceScore /= count
     print("The Testing set had an average Dice score of ", AvgDiceScore)
-    
+
     ROCGen(predictions, arrayTruthEval)
 
     display(arrayData, model)

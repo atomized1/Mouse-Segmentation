@@ -250,15 +250,20 @@ def ROCGen(predict, truth):
         mask = truth > cutoff/cutoffPoints
         mask = tf.cast(mask, dtype=tf.float32)
         truthPos = tf.multiply(truth, mask)
+        mask = predict < cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        predNeg = tf.multiply(predict, mask)
         mask = truth < cutoff/cutoffPoints
         mask = tf.cast(mask, dtype=tf.float32)
         truthNeg = tf.multiply(truth, mask)
 
         truePos = tf.reduce_sum(tf.multiply(predPos, truthPos))
-        truePosRate[cutoff] = truePos
+        falseNeg = tf.reduce_sum(tf.multiply(predNeg, truthPos))
+        truePosRate[cutoff] = truePos/(truePos + falseNeg)
 
         falsePos = tf.reduce_sum(tf.multiply(predPos, truthNeg))
-        falsePosRate[cutoff] = falsePos
+        trueNeg = tf.reduce_sum(tf.multiply(predNeg, truthNeg))
+        falsePosRate[cutoff] = trueNeg/(falsePos + trueNeg)
 
     plt.figure(1)
     plt.plot(falsePosRate, truePosRate)
@@ -340,7 +345,7 @@ def main():
 
     ROCGen(predictions, arrayTruthEval)
 
-    display(arrayData, model)
+    #display(arrayData, model)
 
 
 if __name__ == "__main__":

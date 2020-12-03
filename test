@@ -1,0 +1,327 @@
+import tensorflow as tf
+import nibabel as nib
+import keras
+import numpy as np
+import keyboard
+import matplotlib.pyplot as plt
+import os
+
+dirnam = os.path.dirname(__file__)
+
+def dice_metric(y_true, y_pred):
+#A Fuction that calculates the dice score for the predicted and true regions
+#Inputs: The predicted and true labels of what in the image is skull
+#Outputs: A dice score
+
+    threshold = 0.5
+
+    mask = y_pred > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_pred = tf.multiply(y_pred, mask)
+    mask = y_true > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_true = tf.multiply(y_true, mask)
+
+    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
+    l = tf.reduce_sum(y_pred)
+    r = tf.reduce_sum(y_true)
+
+    hard_dice = (2. * inse) / (l + r)
+
+    hard_dice = tf.reduce_mean(hard_dice)
+
+    return hard_dice
+
+
+def dice_metric_thresh(y_true, y_pred, thresh):
+#A Fuction that calculates the dice score for the predicted and true regions
+#Inputs: The predicted and true labels of what in the image is skull
+#Outputs: A dice score
+
+    threshold = thresh
+
+    mask = y_pred > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_pred = tf.multiply(y_pred, mask)
+    #mask = y_true > threshold
+    #mask = tf.cast(mask, dtype=tf.float32)
+    #y_true = tf.multiply(y_true, mask)
+    y_true = tf.cast(y_true, dtype=tf.float32)
+
+    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
+    l = tf.reduce_sum(y_pred)
+    r = tf.reduce_sum(y_true)
+
+    hard_dice = (2. * inse) / (l + r)
+
+    hard_dice = tf.reduce_mean(hard_dice)
+
+    return hard_dice
+
+
+def getData():
+    # A fuction that loads in the data from a list of files
+    # Inputs: none
+    # Outputs: Arrays containing slices of each image
+
+    #variables used to divide up data
+    alt = 0
+    countA = 0
+    countB = 0
+
+    #The empty arrays that will store filenames for each set
+    imageListTrain = []
+    imageListPredict = []
+    maskListTrain = []
+    maskListPredict = []
+
+    #A short loop to split all the data into one of the 4 lists.
+    with open(os.path.normpath(os.path.join(dirnam, '2.txt'))) as files:
+        for arrayDataPath in files:
+            if alt == 0:
+                if countA <= 6:
+                    imageListTrain.append(arrayDataPath.strip())
+                    countA += 1
+                else:
+                    imageListPredict.append(arrayDataPath.strip())
+                    countA += 1
+                    if countA == 10:
+                        countA = 0
+                alt = 1
+            elif alt == 1:
+                if countB <= 6:
+                    maskListTrain.append(arrayDataPath.strip())
+                    countB += 1
+                else:
+                    maskListPredict.append(arrayDataPath.strip())
+                    countB += 1
+                    if countB == 10:
+                        countB = 0
+                alt = 0
+
+    #Loading in all the data from the filenames using the initialize function defined below
+    arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
+
+    return arrayPredictData, arrayPredictTruth
+
+
+def normalize(data):
+    #initializing some variables so I can calculate mean intensity
+    total = 0
+    count = 0
+    #A loop to calculate that mean
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                total += data[x][y][z]
+                count += 1
+    mean = total / count
+
+    #Using that mean to calculate variance, and then Standard deviation
+    totalVariance = 0
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                variance = pow(data[x][y][z] - mean, 2)
+                totalVariance += variance
+    Std = totalVariance / count
+
+    #Adjusting all values appropriately
+    for x in range(0, len(data)):
+        for y in range(0, len(data[1])):
+            for z in range(0, len(data[1][1])):
+                data[x][y][z] -= mean
+                data[x][y][z] /= Std
+
+    return data
+
+
+def initialize(imageList, maskList):
+    #Counting how many slices we need to load in, then preallocating arrays of that size
+    slices = 0
+    print(os.path.join(dirnam, imageList[0]))
+    for x in range(0, len(imageList)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[x])))
+        data = image.get_fdata()
+        slices = slices + len(data[0])
+        print(slices)
+
+    arrayData = np.empty([slices, 1, 148, 100])
+    arrayTruth = np.empty([slices, 1, 148, 100])
+
+    #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
+    start = 0
+    for file in range(0, len(imageList)):
+        image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[file])))
+        data = image.get_fdata()
+        data = normalize(data) #Adjusting the data using mean and std
+        mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
+        truth = mask.get_fdata()
+        data = np.rot90(data, axes=(0, 1))  #Rotating data so the thickest side is in the 0 index
+        truth = np.rot90(truth, axes=(0, 1))
+        for x in range(0, len(data)):
+            arrayData[x + start, 0] = data[x, 0:148]
+            arrayTruth[x + start, 0] = truth[x, 0:148]
+        start = start + len(data)
+        print("File Loaded")
+
+    return arrayData, arrayTruth
+
+
+def ROCGen(predict, truth):
+    cutoffPoints = 100
+    truePosRate = np.empty(cutoffPoints)
+    falsePosRate = np.empty(cutoffPoints)
+    for cutoff in range(0, cutoffPoints):
+        mask = predict > cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        predPos = tf.multiply(predict, mask)
+        mask = truth > cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        truthPos = tf.multiply(truth, mask)
+        mask = predict < cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        predNeg = tf.multiply(predict, mask)
+        mask = truth < cutoff/cutoffPoints
+        mask = tf.cast(mask, dtype=tf.float32)
+        truthNeg = tf.multiply(truth, mask)
+
+        truePos = tf.reduce_sum(tf.multiply(predPos, truthPos))
+        falseNeg = tf.reduce_sum(tf.multiply(predNeg, truthPos))
+        truePosRate[cutoff] = truePos/(truePos + falseNeg)
+
+        falsePos = tf.reduce_sum(tf.multiply(predPos, truthNeg))
+        trueNeg = tf.reduce_sum(tf.multiply(predNeg, truthNeg))
+        falsePosRate[cutoff] = trueNeg/(falsePos + trueNeg)
+
+    plt.figure(1)
+    plt.plot(falsePosRate, truePosRate)
+    plt.savefig('ROC.png')
+    np.savetxt(os.path.join(dirnam, "ROCP.csv"), truePosRate, delimiter=",")
+    np.savetxt(os.path.join(dirnam, "ROCF.csv"), falsePosRate, delimiter=",")
+
+
+def imageGen(base, truth, pred):
+    pred = pred > 0.5
+    dif1 = truth - pred
+    dif1 = dif1 > 0.5
+    dif1 = np.ma.masked_where(dif1 < 0.5, dif1)
+    dif2 = pred - truth
+    dif2 = dif2 > 0.5
+    dif2 = np.ma.masked_where(dif2 < 0.5, dif2)
+    dif3 = truth - pred
+    dif3 = np.ma.masked_where(dif3 == 1, dif3)
+    pred = np.ma.masked_where(pred < 0.5, pred)
+    plt.figure(1)
+    plt.subplot(441)
+    plt.imshow(base[130, :, :, 0], cmap='gray')
+    plt.subplot(442)
+    plt.imshow(base[130, :, :, 0], cmap='gray')
+    plt.imshow(truth[130, :, :, 0], alpha=0.2)
+    plt.subplot(443)
+    plt.imshow(base[130, :, :, 0], cmap='gray')
+    plt.imshow(pred[130, :, :, 0], alpha=0.2)
+    plt.subplot(444)
+    plt.imshow(base[130, :, :, 0], cmap='gray')
+    #plt.imshow(dif1[130, :, :, 0], interpolation='none')
+    #plt.imshow(dif2[130, :, :, 0], interpolation='none')
+    plt.imshow(dif3[130, :, :, 0], cmap='RdGy')
+    plt.subplot(445)
+    plt.imshow(base[330, :, :, 0], cmap='gray')
+    plt.subplot(446)
+    plt.imshow(base[330, :, :, 0], cmap='gray')
+    plt.imshow(truth[330, :, :, 0], alpha=0.2)
+    plt.subplot(447)
+    plt.imshow(base[330, :, :, 0], cmap='gray')
+    plt.imshow(pred[330, :, :, 0], alpha=0.2)
+    plt.subplot(448)
+    plt.imshow(base[330, :, :, 0], cmap='gray')
+    #plt.imshow(dif1[330, :, :, 0], interpolation='none')
+    #plt.imshow(dif2[330, :, :, 0], interpolation='none')
+    plt.imshow(dif3[330, :, :, 0], cmap='RdGy')
+    plt.subplot(449)
+    plt.imshow(base[530, :, :, 0], cmap='gray')
+    plt.subplot(4, 4, 10)
+    plt.imshow(base[530, :, :, 0], cmap='gray')
+    plt.imshow(truth[530, :, :, 0], alpha=0.2)
+    plt.subplot(4, 4, 11)
+    plt.imshow(base[530, :, :, 0], cmap='gray')
+    plt.imshow(pred[530, :, :, 0], alpha=0.2)
+    plt.subplot(4, 4, 12)
+    plt.imshow(base[530, :, :, 0], cmap='gray')
+    #plt.imshow(dif1[530, :, :, 0], interpolation='none')
+    #plt.imshow(dif2[530, :, :, 0], interpolation='none')
+    plt.imshow(dif3[530, :, :, 0], cmap='RdGy')
+    plt.subplot(4, 4, 13)
+    plt.imshow(base[730, :, :, 0], cmap='gray')
+    plt.subplot(4, 4, 14)
+    plt.imshow(base[730, :, :, 0], cmap='gray')
+    plt.imshow(truth[730, :, :, 0], alpha=0.2)
+    plt.subplot(4, 4, 15)
+    plt.imshow(base[730, :, :, 0], cmap='gray')
+    plt.imshow(pred[730, :, :, 0], alpha=0.2)
+    plt.subplot(4, 4, 16)
+    plt.imshow(base[730, :, :, 0], cmap='gray')
+    #plt.imshow(dif1[730, :, :, 0], interpolation='none')
+    #plt.imshow(dif2[730, :, :, 0], interpolation='none')
+    plt.imshow(dif3[730, :, :, 0], cmap='RdGy')
+    plt.savefig('Yo.png')
+
+
+def main():
+    #Layers to construct the model.
+    #Each unit of the U-net consists of 2 convultional layers 1 pooling/unpooling layer
+    #The kernel siez for these are 3x3 and 2x2 respectively
+    #All layers pad to insure data dimensions stay constant before and after model
+    #Skip connections connect pooling and upooling layers of the same data size using concatenation
+    #All layers use rectiliar units, except the last layer which uses sigmoidal.
+    #Rectilinear was chosen to effectively weed out unimportant data, and the sigmoidal was used because it looks like a percent
+    #Email me any questions
+    input_layer = keras.layers.Input(shape=(100, 148, 1))
+    conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
+    conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
+    pool1 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1b)
+    conv2a = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(pool1)
+    conv2b = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(conv2a)
+    pool2 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv2b)
+    conv3a = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(pool2)
+    conv3b = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(conv3a)
+
+    dconv3a = keras.layers.Conv2DTranspose(filters=96, kernel_size=(3, 3), padding='same')(conv3b)
+    dconv3b = keras.layers.Conv2DTranspose(filters=96, kernel_size=(3, 3), padding='same')(dconv3a)
+    unpool2 = keras.layers.UpSampling2D(size=(2, 2))(dconv3b)
+    cat2 = keras.layers.concatenate([conv2b, unpool2])
+    dconv2a = keras.layers.Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same')(cat2)
+    dconv2b = keras.layers.Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same')(dconv2a)
+    unpool1 = keras.layers.UpSampling2D(size=(2, 2))(dconv2b)
+    cat1 = keras.layers.concatenate([conv1b, unpool1])
+    dconv1a = keras.layers.Conv2DTranspose(filters=32, kernel_size=(3, 3), padding='same')(cat1)
+    dconv1b = keras.layers.Conv2DTranspose(filters=32, kernel_size=(3, 3), padding='same')(dconv1a)
+
+    output = keras.layers.Conv2D(filters=1, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
+
+    #This saves our model every 10 epochs, just incase it is better than the final/we crash
+    cp_callback = keras.callbacks.ModelCheckpoint(filepath=os.path.join(dirnam, "models/cp-{epoch:04d}.ckpt"), verbose=1, save_weights_only=True, period=10)
+
+    #Compiling the model.  Learning rate turned down because experimentally it does better at this value
+    #Cross entropy used rather than dice score because experimentally causes model to converge to local min faster
+    model = keras.models.Model(inputs=input_layer, output=output)
+    opt = keras.optimizers.Adam(learning_rate=0.0005)
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
+
+    arrayEval, arrayTruthEval = getData()
+    #Rotating data 1 more time, for thickness reasons
+    arrayEval = np.rot90(arrayEval, axes=(1, 3))
+    arrayTruthEval = np.rot90(arrayTruthEval, axes=(1, 3))
+
+    model.load_weights(os.path.normpath(os.path.join(dirnam, 'models\cp-0020.ckpt')))
+
+    predictions = model.predict(arrayEval)
+
+    #ROCGen(predictions, arrayTruthEval)
+    imageGen(arrayEval, arrayTruthEval, predictions)
+    print("Completed successfully")
+
+
+if __name__ == "__main__":
+    main()

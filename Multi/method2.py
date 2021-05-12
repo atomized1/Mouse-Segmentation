@@ -285,7 +285,7 @@ def createModels(neighbors, mask, image):
                                 truth[pixel, 0, 0, neighborID] = 1
                                 pixel = pixel + 1
 
-            history = modelN.fit(data, truth, epochs=20, batch_size=int(numOfPixels/20) + 1)
+            history = modelN.fit(data, truth, epochs=20, batch_size=int(numOfPixels/40) + 1)
             modelN.save(os.path.join(dirnam, "models/" + str(x) + "modelN"))
 
 

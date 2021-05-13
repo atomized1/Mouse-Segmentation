@@ -162,7 +162,7 @@ def detectNeighbors(mask):
 
 def createModels(neighbors, mask, image):
     #To loop through every label
-    for x in range(0, 332):
+    for x in range(78, 332):
         numOfNeigh = 0
         #Checking how many neighbors this label has
         for y in range(0, 332):

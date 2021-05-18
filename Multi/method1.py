@@ -88,155 +88,6 @@ def convertTruth(mask):
     return newTruth
 
 
-def detectNeighbors(mask):
-    dectectingArray = np.zeros((332, 332))
-    #cycling through every pixel of the image, except the last one, which will have no pixel after it
-    for x in range(0, len(mask)):
-        for y in range(0, len(mask[0])):
-            for z in range(0, len(mask[0, 0]) - 1):
-                if mask[x, y, z] < 1000:
-                    if mask[x, y, z + 1] < 1000:
-                        dectectingArray[int(mask[x, y, z]), int(mask[x, y, z + 1])] = 1
-                    else:
-                        dectectingArray[int(mask[x, y, z]), int(mask[x, y, z + 1] - 1000 + 165)] = 1
-                else:
-                    if mask[x, y, z + 1] < 1000:
-                        dectectingArray[int(mask[x, y, z] - 1000 + 165), int(mask[x, y, z + 1])] = 1
-                    else:
-                        dectectingArray[int(mask[x, y, z] - 1000 + 165), int(mask[x, y, z + 1] - 1000 + 165)] = 1
-    return dectectingArray
-
-
-def createModels(neighbors, mask):
-    #To loop through every label
-    for x in range(0, 332):
-        numOfNeigh = 0
-        #Checking how many neighbors this label has
-        for y in range(0, 332):
-            if neighbors[x, y] == 1:
-                numOfNeigh = numOfNeigh + 1
-
-        print("Num of Neighbors")
-        print(numOfNeigh)
-
-        #Designing model to be essentially half a U-net
-        input_layerN = keras.layers.Input(shape=(8, 8, 1))
-        conv1aN = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layerN)
-        conv1bN = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1aN)
-        pool1N = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1bN)
-        conv2aN = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(pool1N)
-        conv2bN = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(conv2aN)
-        pool2N = keras.layers.MaxPool2D(pool_size=(4, 4))(conv2bN)
-        conv3aN = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(pool2N)
-        conv3bN = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(conv3aN)
-
-        outputN = keras.layers.Conv2D(filters=numOfNeigh, kernel_size=(3, 3), activation='sigmoid', padding='same')(conv3bN)
-
-        modelN = keras.models.Model(input_layerN, outputN)
-        opt = keras.optimizers.Adam(learning_rate=0.0005)
-        modelN.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
-
-        numOfPixels = 0
-
-        for a in range(0, len(mask)):
-            for b in range(0, len(mask[0])):
-                for c in range(0, len(mask[0, 0]) - 1):
-                    if x < 166:
-                        if mask[a, b, c] == x:
-                            numOfPixels = numOfPixels + 1
-                    else:
-                        if mask[a, b, c] == x + 1000 - 165:
-                            numOfPixels = numOfPixels + 1
-
-        print("Num of Pixels")
-        print(x)
-        print(numOfPixels)
-
-        data = np.empty((numOfPixels, 8, 8, 1))
-        truth = np.zeros((numOfPixels, 1, 1, numOfNeigh))
-        pixel = 0
-
-        if numOfNeigh > 0:
-            for a in range(0, len(mask)):
-                for b in range(0, len(mask[0])):
-                    for c in range(0, len(mask[0, 0]) - 1):
-                        #If statement to convert from image values to consecutive values
-                        if x < 166:
-                            if mask[a, b, c] == x:
-                                #If statements to check if we are on the edge of the image and account for that
-                                if a < 4:
-                                    if b < 4:
-                                        data[pixel] = mask[0:8, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[0:8, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[0:8, b-4:b+4, c]
-                                elif a > 96:
-                                    if b < 4:
-                                        data[pixel] = mask[92:100, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[92:100, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[92:100, b-4:b+4, c]
-                                else:
-                                    if b < 4:
-                                        data[pixel] = mask[a-4:a+4, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[a-4:a+4, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[a-4:a+4, b-4:b+4, c]
-                                neighborID = -1
-                                if int(mask[a, b, c + 1]) < 1000:
-                                    for d in range(0, int(mask[a, b, c + 1])):
-                                        if neighbors[x, d] == 1:
-                                            neighborID = neighborID + 1
-                                else:
-                                    for d in range(0, int(mask[a, b, c + 1]) - 1000 + 165):
-                                        if neighbors[x, d] == 1:
-                                            neighborID = neighborID + 1
-
-                                truth[pixel, 0, 0, neighborID] = 1
-                                pixel = pixel + 1
-                        else:
-                            if mask[a, b, c] == x + 1000 - 165:
-                                if a < 4:
-                                    if b < 4:
-                                        data[pixel] = mask[0:8, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[0:8, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[0:8, b-4:b+4, c]
-                                elif a > 96:
-                                    if b < 4:
-                                        data[pixel] = mask[92:100, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[92:100, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[92:100, b-4:b+4, c]
-                                else:
-                                    if b < 4:
-                                        data[pixel] = mask[a-4:a+4, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = mask[a-4:a+4, 92:100, c]
-                                    else:
-                                        data[pixel] = mask[a-4:a+4, b-4:b+4, c]
-                                neighborID = -1
-                                if int(mask[a, b, c + 1]) < 1000:
-                                    for d in range(0, int(mask[a, b, c + 1])):
-                                        if neighbors[x, d] == 1:
-                                            neighborID = neighborID + 1
-                                else:
-                                    for d in range(0, int(mask[a, b, c + 1]) - 1000 + 165):
-                                        if neighbors[x, d] == 1:
-                                            neighborID = neighborID + 1
-                                truth[pixel, 0, 0, neighborID] = 1
-                                pixel = pixel + 1
-
-
-            history = modelN.fit(data, truth, epochs=1, batch_size=50)
-            modelN.save(os.path.join(dirnam, "models/" + str(x) + "modelN"))
-
-
 def main():
     input_layer = keras.layers.Input(shape=(100, 148, 1))
     conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
@@ -273,20 +124,15 @@ def main():
     print(len(layerTruth[0]))
     print(len(layerTruth[0, 0]))
     print(layerTruth[0, 0, 0])
-    for x in range(10, len(layerTruth), 10):
-        arrayTruth = convertTruth(layerTruth[x - 10:x])
+    arrayTruth = convertTruth(layerTruth)
 
-        #neighbors = detectNeighbors(layerTruth[x:x + 30])
+    print(len(arrayData))
 
-        #createModels(neighbors, layerTruth)
-
-        #print(neighbors)
-        print(len(arrayData))
-
-        history = model.fit(arrayData[x - 10:x], arrayTruth, epochs=epochs, batch_size=10)
+    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
 
     model.save(os.path.join(dirnam, "modelsGlobal/Model"))
 
 
 if __name__ == "__main__":
     main()
+

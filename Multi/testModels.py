@@ -227,6 +227,7 @@ def convertTruth(mask):
 
 def main():
     model = keras.models.load_model('modelsGlobal/Model', custom_objects={"dice_metric": dice_metric})
+    opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))

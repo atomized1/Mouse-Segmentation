@@ -8,6 +8,27 @@ import os
 
 dirnam = os.path.dirname(__file__)
 
+def dice_metric(y_true, y_pred):
+
+    threshold = 0.5
+
+    mask = y_pred > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_pred = tf.multiply(y_pred, mask)
+    mask = y_true > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_true = tf.multiply(y_true, mask)
+
+    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
+    l = tf.reduce_sum(y_pred)
+    r = tf.reduce_sum(y_true)
+
+    hard_dice = (2. * inse) / (l + r)
+
+    hard_dice = tf.reduce_mean(hard_dice)
+
+    return hard_dice
+
 
 def getData():
     # A fuction that loads in the data from a list of files
@@ -189,7 +210,7 @@ def display(data, model):
 
 
 def main():
-    model = keras.models.load_model('modelsGlobal/Model')
+    model = keras.models.load_model('modelsGlobal\Model', custom_objects={"dice_metric": dice_metric})
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))

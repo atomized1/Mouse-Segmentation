@@ -241,6 +241,7 @@ def deconvertTruth(labels):
 
 def imageGen(labels):
     plt.figure(1)
+    labels = np.ma.masked_where(labels != 91, labels)
     plt.imshow(labels[130, :, :, 0])
     plt.savefig('visuals.png')
 

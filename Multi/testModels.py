@@ -209,9 +209,26 @@ def display(data, model):
             x = 0
 
 
+def convertTruth(mask):
+    #Designing a 1-hot array that can be compared to the output of the larger model
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 332), dtype=np.dtype('int32'))
+    for x in range(0, len(mask)):
+        for y in range(0, len(mask[0])):
+            for z in range(0, len(mask[0, 0])):
+                new = np.zeros(332)
+                if mask[x, y, z] < 1000:
+                    new[int(mask[x, y, z])] = 1
+                    newTruth[x, y, z] = new
+                else:
+                    new[int(mask[x, y, z]) - 1000 + 165] = 1
+                    newTruth[x, y, z] = new
+    return newTruth
+
+
 def main():
     model = keras.models.load_model('modelsGlobal/Model', custom_objects={"dice_metric": dice_metric})
     arrayData, layerTruth = getData()
+    layerTruth = convertTruth(layerTruth)
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     history = model.evaluate(arrayData, layerTruth)

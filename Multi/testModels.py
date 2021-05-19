@@ -189,7 +189,7 @@ def display(data, model):
 
 
 def main():
-    model = keras.models.load_model('modelsGlobal\Model')
+    model = keras.models.load_model('modelsGlobal/Model')
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))

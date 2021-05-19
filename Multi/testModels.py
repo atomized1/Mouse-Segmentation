@@ -256,6 +256,7 @@ def main():
     layerTruth = convertTruth(layerTruth)
     model.evaluate(arrayData, layerTruth)
     history = model.predict(arrayData)
+    history = deconvertTruth(history)
 
     imageGen(history)
 

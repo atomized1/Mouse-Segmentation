@@ -228,9 +228,9 @@ def convertTruth(mask):
 def main():
     model = keras.models.load_model('modelsGlobal/Model', custom_objects={"dice_metric": dice_metric})
     arrayData, layerTruth = getData()
-    layerTruth = convertTruth(layerTruth)
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    layerTruth = convertTruth(layerTruth)
     history = model.evaluate(arrayData, layerTruth)
 
     xvals = np.arange(len(arrayData))

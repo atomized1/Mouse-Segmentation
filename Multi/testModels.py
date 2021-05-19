@@ -225,6 +225,25 @@ def convertTruth(mask):
     return newTruth
 
 
+def deconvertTruth(labels):
+    newTruth = np.empty((len(labels), len(labels[0]), len(labels[0,0])), dtype=np.dtype('int32'))
+    for x in range(0, len(labels)):
+        for y in range(0, len(labels[0])):
+            for z in range(0, len(labels[0, 0])):
+                biggestNum = 0
+                biggestLabel = 0
+                for a in range(0, 332):
+                    if biggestNum < labels[x,y,z,a]:
+                        biggestNum = labels[x,y,z,a]
+                        biggestLabel = a
+                newTruth[x,y,z] = biggestLabel
+
+
+def imageGen(labels):
+    plt.figure(1)
+    plt.imshow(labels[130, :, :, 0])
+    plt.savefig('visuals.png')
+
 def main():
     model = keras.models.load_model('modelsGlobal/Model', custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam(learning_rate=0.0005)
@@ -233,23 +252,10 @@ def main():
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
-    history = model.evaluate(arrayData, layerTruth)
+    model.evaluate(arrayData, layerTruth)
+    history = model.predict(arrayData)
 
-    xvals = np.arange(len(arrayData))
-    plt.figure(1)
-    plt.plot(xvals, history.history['binary_accuracy'])
-    plt.savefig('plotAccuracy.png')
-    np.savetxt(os.path.join(dirnam, "Accuracy.csv"), history.history['binary_accuracy'], delimiter=",")
-
-    plt.figure(2)
-    plt.plot(xvals, history.history['loss'])
-    plt.savefig('plotLoss.png')
-    np.savetxt(os.path.join(dirnam, "Loss.csv"), history.history['loss'], delimiter=",")
-
-    plt.figure(3)
-    plt.plot(xvals, history.history['dice_metric'])
-    plt.savefig('plotDice.png')
-    np.savetxt(os.path.join(dirnam, "Dice.csv"), history.history['dice_metric'], delimiter=",")
+    imageGen(history)
 
 
 if __name__ == "__main__":

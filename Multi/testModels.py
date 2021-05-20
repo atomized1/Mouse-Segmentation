@@ -244,7 +244,7 @@ def deconvertTruth(labels):
 def imageGen(labels):
     plt.figure(1)
     print(labels[70, 60, 60])
-    plt.imshow(labels[70, :, :])
+    plt.imshow(labels[100, :, :])
     plt.savefig('visuals.png')
 
 def main():

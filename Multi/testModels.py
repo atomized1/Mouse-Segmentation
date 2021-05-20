@@ -227,7 +227,7 @@ def convertTruth(mask):
 
 def deconvertTruth(labels):
     newTruth = np.empty((len(labels), len(labels[0]), len(labels[0,0])), dtype=np.dtype('int32'))
-    for x in range(0, len(labels)):
+    for x in range(0, 100):
         print(x)
         for y in range(0, len(labels[0])):
             for z in range(0, len(labels[0, 0])):
@@ -243,8 +243,8 @@ def deconvertTruth(labels):
 
 def imageGen(labels):
     plt.figure(1)
-    labels = np.ma.masked_where(labels != 91, labels)
-    plt.imshow(labels[130, :, :])
+    print(labels[70, 60, 60])
+    plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
 def main():

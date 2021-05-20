@@ -244,8 +244,12 @@ def deconvertTruth(labels):
 def imageGen(labels):
     plt.figure(1)
     print(labels[70, 60, 60])
-    plt.imshow(labels[100, :, :])
+    labels = labels.astype('int32')
+    plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
+
+    img = nib.Nifti1Image(labels[:180], np.eye(4))
+    nib.save(img, 'results.nii.gz')
 
 def main():
     model = keras.models.load_model('modelsGlobal/Model', custom_objects={"dice_metric": dice_metric})

@@ -238,10 +238,12 @@ def deconvertTruth(labels):
                         biggestNum = labels[x,y,z,a]
                         biggestLabel = a
                 newTruth[x,y,z] = biggestLabel
+    return newTruth
 
 
 def imageGen(labels):
     plt.figure(1)
+    labels = np.ma.masked_where(labels != 91, labels)
     plt.imshow(labels[130, :, :])
     plt.savefig('visuals.png')
 

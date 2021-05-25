@@ -2,6 +2,7 @@ import tensorflow as tf
 import nibabel as nib
 import keras
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 
 dirnam = os.path.dirname(__file__)
@@ -162,7 +163,7 @@ def detectNeighbors(mask):
 
 def createModels(neighbors, mask, image):
     #To loop through every label
-    for x in range(222, 332):
+    for x in range(0, 333):
         numOfNeigh = 0
         #Checking how many neighbors this label has
         for y in range(0, 332):
@@ -220,22 +221,22 @@ def createModels(neighbors, mask, image):
                                 if a < 4:
                                     if b < 4:
                                         data[pixel] = image[0:8, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[0:8, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[0:8, 172:180, c]
                                     else:
                                         data[pixel] = image[0:8, b-4:b+4, c]
                                 elif a > 96:
                                     if b < 4:
                                         data[pixel] = image[92:100, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[92:100, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[92:100, 172:180, c]
                                     else:
                                         data[pixel] = image[92:100, b-4:b+4, c]
                                 else:
                                     if b < 4:
                                         data[pixel] = image[a-4:a+4, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[a-4:a+4, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[a-4:a+4, 172:180, c]
                                     else:
                                         data[pixel] = image[a-4:a+4, b-4:b+4, c]
                                 neighborID = -1
@@ -255,22 +256,22 @@ def createModels(neighbors, mask, image):
                                 if a < 4:
                                     if b < 4:
                                         data[pixel] = image[0:8, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[0:8, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[0:8, 172:180, c]
                                     else:
                                         data[pixel] = image[0:8, b-4:b+4, c]
                                 elif a > 96:
                                     if b < 4:
                                         data[pixel] = image[92:100, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[92:100, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[92:100, 172:180, c]
                                     else:
                                         data[pixel] = image[92:100, b-4:b+4, c]
                                 else:
                                     if b < 4:
                                         data[pixel] = image[a-4:a+4, 0:8, c]
-                                    elif b > 96:
-                                        data[pixel] = image[a-4:a+4, 92:100, c]
+                                    elif b > 176:
+                                        data[pixel] = image[a-4:a+4, 172:180, c]
                                     else:
                                         data[pixel] = image[a-4:a+4, b-4:b+4, c]
                                 neighborID = -1
@@ -285,7 +286,7 @@ def createModels(neighbors, mask, image):
                                 truth[pixel, 0, 0, neighborID] = 1
                                 pixel = pixel + 1
 
-            history = modelN.fit(data, truth, epochs=2, batch_size=int(numOfPixels/100) + 1)
+            history = modelN.fit(data, truth, epochs=20, batch_size=int(numOfPixels/20) + 1)
             modelN.save(os.path.join(dirnam, "models/" + str(x) + "modelN"))
 
 
@@ -296,9 +297,11 @@ def main():
     layerTruthTrain = np.rot90(layerTruthTrain, axes=(1, 3))
 
     neighbors = detectNeighbors(layerTruthTrain)
-
+    print(len(arrayDataTrain[0]))
+    print(len(arrayDataTrain[0][0]))
     createModels(neighbors, layerTruthTrain, arrayDataTrain)
 
 
 if __name__ == "__main__":
     main()
+

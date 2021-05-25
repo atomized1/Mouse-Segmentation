@@ -221,22 +221,22 @@ def createModels(neighbors, mask, image):
                                 if a < 4:
                                     if b < 4:
                                         data[pixel] = image[0:8, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[0:8, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[0:8, 140:148, c]
                                     else:
                                         data[pixel] = image[0:8, b-4:b+4, c]
                                 elif a > 96:
                                     if b < 4:
                                         data[pixel] = image[92:100, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[92:100, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[92:100, 140:148, c]
                                     else:
                                         data[pixel] = image[92:100, b-4:b+4, c]
                                 else:
                                     if b < 4:
                                         data[pixel] = image[a-4:a+4, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[a-4:a+4, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[a-4:a+4, 140:148, c]
                                     else:
                                         data[pixel] = image[a-4:a+4, b-4:b+4, c]
                                 neighborID = -1
@@ -256,22 +256,22 @@ def createModels(neighbors, mask, image):
                                 if a < 4:
                                     if b < 4:
                                         data[pixel] = image[0:8, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[0:8, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[0:8, 140:148, c]
                                     else:
                                         data[pixel] = image[0:8, b-4:b+4, c]
                                 elif a > 96:
                                     if b < 4:
                                         data[pixel] = image[92:100, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[92:100, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[92:100, 140:148, c]
                                     else:
                                         data[pixel] = image[92:100, b-4:b+4, c]
                                 else:
                                     if b < 4:
                                         data[pixel] = image[a-4:a+4, 0:8, c]
-                                    elif b > 176:
-                                        data[pixel] = image[a-4:a+4, 172:180, c]
+                                    elif b > 144:
+                                        data[pixel] = image[a-4:a+4, 140:148, c]
                                     else:
                                         data[pixel] = image[a-4:a+4, b-4:b+4, c]
                                 neighborID = -1

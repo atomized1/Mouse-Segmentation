@@ -213,6 +213,7 @@ def createModels(neighbors, mask, image):
         if numOfNeigh > 0:
             for a in range(0, len(image)):
                 for b in range(0, len(image[0])):
+                    print(b)
                     for c in range(0, len(image[0, 0]) - 1):
                         #If statement to convert from image values to consecutive values
                         if x < 166:

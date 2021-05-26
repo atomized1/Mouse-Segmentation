@@ -287,7 +287,7 @@ def createModels(neighbors, mask, image):
                                 truth[pixel, 0, 0, neighborID] = 1
                                 pixel = pixel + 1
 
-            history = modelN.fit(data, truth, epochs=20, batch_size=int(numOfPixels/30) + 1)
+            history = modelN.fit(data, truth, epochs=20, batch_size=int(numOfPixels/40) + 1)
             modelN.save(os.path.join(dirnam, "models/" + str(x) + "modelN"))
 
 
@@ -305,3 +305,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -219,27 +219,27 @@ def createModels(neighbors, mask, image):
                         if x < 166:
                             if mask[a, b, c] == x:
                                 #If statements to check if we are on the edge of the image and account for that
-                                if a < 4:
-                                    if b < 4:
-                                        data[pixel] = image[0:8, 0:8, c]
-                                    elif b > 144:
-                                        data[pixel] = image[0:8, 140:148, c]
+                                if b < 4:
+                                    if c < 4:
+                                        data[pixel] = image[a, 0:8, 0:8]
+                                    elif c > 144:
+                                        data[pixel] = image[a, 0:8, 140:148]
                                     else:
-                                        data[pixel] = image[0:8, b-4:b+4, c]
-                                elif a > 96:
-                                    if b < 4:
-                                        data[pixel] = image[92:100, 0:8, c]
-                                    elif b > 144:
-                                        data[pixel] = image[92:100, 140:148, c]
+                                        data[pixel] = image[a, 0:8, c-4:c+4]
+                                elif b > 96:
+                                    if c < 4:
+                                        data[pixel] = image[a, 92:100, 0:8]
+                                    elif c > 144:
+                                        data[pixel] = image[a, 92:100, 140:148]
                                     else:
-                                        data[pixel] = image[92:100, b-4:b+4, c]
+                                        data[pixel] = image[a, 92:100, c-4:c+4]
                                 else:
-                                    if b < 4:
-                                        data[pixel] = image[a-4:a+4, 0:8, c]
-                                    elif b > 144:
-                                        data[pixel] = image[a-4:a+4, 140:148, c]
+                                    if c < 4:
+                                        data[pixel] = image[a, b-4:b+4, 0:8]
+                                    elif c > 144:
+                                        data[pixel] = image[a, b-4:b+4, 140:148]
                                     else:
-                                        data[pixel] = image[a-4:a+4, b-4:b+4, c]
+                                        data[pixel] = image[a, b-4:b+4, c-4:c+4]
                                 neighborID = -1
                                 if int(mask[a, b, c + 1]) < 1000:
                                     for d in range(0, int(mask[a, b, c + 1])):

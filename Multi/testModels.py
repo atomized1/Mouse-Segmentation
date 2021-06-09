@@ -227,7 +227,7 @@ def convertTruth(mask):
 
 def deconvertTruth(labels):
     newTruth = np.empty((len(labels), len(labels[0]), len(labels[0,0])), dtype=np.dtype('int32'))
-    for x in range(0, 180):
+    for x in range(0, len(labels)):
         print(x)
         for y in range(0, len(labels[0])):
             for z in range(0, len(labels[0, 0])):

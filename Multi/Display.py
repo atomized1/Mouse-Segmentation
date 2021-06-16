@@ -177,6 +177,7 @@ def dice_metric_label(y_true, y_pred, label):
 
     y_predFiltered = y_predFiltered.astype(int)
     y_trueReshaped = y_trueReshaped.astype(int)
+    print(len(y_predFiltered))
     intersect = y_predFiltered & y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()

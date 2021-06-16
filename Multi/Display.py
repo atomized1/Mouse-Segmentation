@@ -128,8 +128,6 @@ def imageGen(labels):
 
 def overlap(labels, truth):
     overlapArray = np.zeros([len(labels), len(labels[0]), len(labels[0][0])])
-    print(labels[80, 50, 110])
-    print(truth[80, 50, 110])
     for x in range(0, len(labels)):
         for y in range(0, len(labels[1])):
             for z in range(0, len(labels[1][1])):
@@ -137,7 +135,6 @@ def overlap(labels, truth):
                     overlapArray[x,y,z] = 0
                 else:
                     overlapArray[x,y,z] = 1
-    print("FLAG!")
     plt.figure(1)
     labels = labels.astype('int32')
     plt.imshow(labels[80, :, :])
@@ -155,7 +152,10 @@ def total_dice(y_true, y_pred):
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
             for z in range(0, len(y_true[0, 0])):
-                y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
+                if y_trueReshaped[x, y, z, 0] < 1000:
+                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
+                else:
+                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0] - 1000 + 165
 
     y_predFiltered = y_pred.astype(int)
     print(len(y_predFiltered))

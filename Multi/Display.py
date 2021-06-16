@@ -158,7 +158,9 @@ def total_dice(y_true, y_pred):
                 y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
 
     y_predFiltered = y_pred.astype(int)
+    print(len(y_predFiltered))
     y_trueReshaped = y_trueReshaped.astype(int)
+    print(len(y_trueReshaped))
     intersect = y_predFiltered == y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()
@@ -177,7 +179,6 @@ def dice_metric_label(y_true, y_pred, label):
 
     y_predFiltered = y_predFiltered.astype(int)
     y_trueReshaped = y_trueReshaped.astype(int)
-    print(len(y_predFiltered))
     intersect = y_predFiltered & y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()

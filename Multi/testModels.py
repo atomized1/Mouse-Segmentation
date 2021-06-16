@@ -248,7 +248,7 @@ def imageGen(labels):
     plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
-    img = nib.Nifti1Image(labels[:180], np.eye(4))
+    img = nib.Nifti1Image(labels, np.eye(4))
     nib.save(img, 'results.nii.gz')
 
 def main():

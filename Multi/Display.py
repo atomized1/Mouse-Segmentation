@@ -122,7 +122,7 @@ def imageGen(labels):
     plt.imshow(labels[80, :, :])
     plt.savefig('visuals2.png')
 
-    img = nib.Nifti1Image(labels[:180], np.eye(4))
+    img = nib.Nifti1Image(labels, np.eye(4))
     nib.save(img, 'true.nii.gz')
 
 
@@ -202,7 +202,7 @@ def main():
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
 
-    print(len(resultsData[0]), len(layerTruth[0]))
+    print(len(resultsData), len(layerTruth))
 
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)

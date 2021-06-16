@@ -152,7 +152,7 @@ def total_dice(y_true, y_pred):
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
             for z in range(0, len(y_true[0, 0])):
-                if y_trueReshaped[x, y, z, 0] < 1000:
+                if y_true[x, y, z, 0] < 1000:
                     y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
                 else:
                     y_trueReshaped[x, y, z] = y_true[x, y, z, 0] - 1000 + 165

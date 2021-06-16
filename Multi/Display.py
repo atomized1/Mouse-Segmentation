@@ -151,10 +151,10 @@ def overlap(labels, truth):
 
 
 def total_dice(y_true, y_pred):
-    y_trueReshaped = np.zeros([180, 100, 148])
-    for x in range(0, 180):
-        for y in range(0, 100):
-            for z in range(0, 148):
+    y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
+    for x in range(0, len(y_true)):
+        for y in range(0, len(y_true[0])):
+            for z in range(0, len(y_true[0, 0])):
                 y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
 
     y_predFiltered = y_pred.astype(int)
@@ -169,10 +169,10 @@ def total_dice(y_true, y_pred):
 def dice_metric_label(y_true, y_pred, label):
     y_predFiltered = y_pred == label
     y_trueFiltered = y_true == label
-    y_trueReshaped = np.zeros([180, 100, 148])
-    for x in range(0, 180):
-        for y in range(0, 100):
-            for z in range(0, 148):
+    y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
+    for x in range(0, len(y_true)):
+        for y in range(0, len(y_true[0])):
+            for z in range(0, len(y_true[0, 0])):
                 y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
 
     y_predFiltered = y_predFiltered.astype(int)

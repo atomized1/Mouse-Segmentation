@@ -169,27 +169,22 @@ def total_dice(y_true, y_pred):
     print(hard_dice)
 
 def dice_metric_label(y_true, y_pred, label):
+    y_predFiltered = y_pred == label
+    y_trueFiltered = y_true == label + 1000 - 166
     y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
             for z in range(0, len(y_true[0, 0])):
-                if y_true[x, y, z, 0] < 1000:
-                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
-                else:
-                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0] - 1000 + 165
-
-    y_predFiltered = y_pred == label
-    y_trueFiltered = y_trueReshaped == label
+                y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
 
     y_predFiltered = y_predFiltered.astype(int)
-    y_trueFiltered = y_trueFiltered.astype(int)
-    print(y_trueFiltered)
-    intersect = y_predFiltered & y_trueFiltered
+    y_trueReshaped = y_trueReshaped.astype(int)
+    intersect = y_predFiltered & y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()
     y_predFiltered = y_predFiltered.sum()
-    y_trueFiltered = y_trueFiltered.sum()
-    print(y_predFiltered, y_trueFiltered)
+    y_trueReshaped = y_trueReshaped.sum()
+    print(y_predFiltered, y_trueReshaped)
 
     hard_dice = 2 * intersect / (y_predFiltered + y_trueReshaped)
 

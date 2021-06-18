@@ -180,11 +180,10 @@ def dice_metric_label(y_true, y_pred, label):
 
     y_predFiltered = y_pred == label
     y_trueFiltered = y_trueReshaped == label
-    
-    print(y_trueFiltered)
 
     y_predFiltered = y_predFiltered.astype(int)
     y_trueFiltered = y_trueFiltered.astype(int)
+    print(y_trueFiltered)
     intersect = y_predFiltered & y_trueFiltered
     intersect = intersect.astype(int)
     intersect = intersect.sum()

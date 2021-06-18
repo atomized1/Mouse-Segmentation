@@ -184,7 +184,6 @@ def dice_metric_label(y_true, y_pred, label):
     intersect = intersect.sum()
     y_predFiltered = y_predFiltered.sum()
     y_trueReshaped = y_trueReshaped.sum()
-    print(y_predFiltered, y_trueReshaped)
 
     hard_dice = 2 * intersect / (y_predFiltered + y_trueReshaped)
 
@@ -193,6 +192,7 @@ def dice_metric_label(y_true, y_pred, label):
     f.close()
 
     print(label, hard_dice)
+    return y_predFiltered, y_trueFiltered
 
 
 def main():
@@ -205,8 +205,14 @@ def main():
 
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)
-    for x in range(165, 333):
-        dice_metric_label(layerTruth, resultsData, x)
+    totalPredPixels = 0
+    totalTruePixels = 0
+    for x in range(0, 333):
+        predPixels, truePixels = dice_metric_label(layerTruth, resultsData, x)
+        totalPredPixels += predPixels
+        totalTruePixels += truePixels
+    
+    print(totalTruePixels, totalPredPixels)
 
 
 if __name__ == "__main__":

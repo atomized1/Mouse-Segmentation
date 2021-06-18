@@ -169,8 +169,6 @@ def total_dice(y_true, y_pred):
     print(hard_dice)
 
 def dice_metric_label(y_true, y_pred, label):
-    y_predFiltered = y_pred == label
-    y_trueFiltered = y_true == label
     y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
@@ -179,6 +177,9 @@ def dice_metric_label(y_true, y_pred, label):
                     y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
                 else:
                     y_trueReshaped[x, y, z] = y_true[x, y, z, 0] - 1000 + 165
+                    
+    y_predFiltered = y_pred == label
+    y_trueFiltered = y_true == label
 
     y_predFiltered = y_predFiltered.astype(int)
     y_trueReshaped = y_trueReshaped.astype(int)

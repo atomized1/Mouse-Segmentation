@@ -164,7 +164,7 @@ def total_dice(y_true, y_pred):
     intersect = y_predFiltered == y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()
-    totalPixel = 180 * 100 * 148
+    totalPixel = len(y_true) * 100 * 148
     hard_dice = 2 * intersect / (totalPixel + totalPixel)
     print(hard_dice)
 
@@ -175,7 +175,10 @@ def dice_metric_label(y_true, y_pred, label):
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
             for z in range(0, len(y_true[0, 0])):
-                y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
+                if y_true[x, y, z, 0] < 1000:
+                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0]
+                else:
+                    y_trueReshaped[x, y, z] = y_true[x, y, z, 0] - 1000 + 165
 
     y_predFiltered = y_predFiltered.astype(int)
     y_trueReshaped = y_trueReshaped.astype(int)
@@ -202,8 +205,6 @@ def main():
 
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
-
-    print(len(resultsData), len(layerTruth))
 
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)

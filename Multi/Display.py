@@ -170,7 +170,7 @@ def total_dice(y_true, y_pred):
 
 def dice_metric_label(y_true, y_pred, label):
     y_predFiltered = y_pred == label
-    y_trueFiltered = y_true == label + 1000 - 166
+    y_trueFiltered = y_true == label + 1000 - 165
     y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
     for x in range(0, len(y_true)):
         for y in range(0, len(y_true[0])):
@@ -211,7 +211,7 @@ def main():
         predPixels, truePixels = dice_metric_label(layerTruth, resultsData, x)
         totalPredPixels += predPixels
         totalTruePixels += truePixels
-    
+
     print(totalTruePixels, totalPredPixels)
 
 

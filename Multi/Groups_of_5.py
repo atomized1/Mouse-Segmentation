@@ -198,8 +198,8 @@ def main():
 
     for x in range(0, 332, 10):
         layerTruth = layerTruth - x
-        layerTruth[layerTruth < 0] = 11
-        layerTruth[layerTruth > 10] = 11
+        layerTruth[layerTruth < 0] = 10
+        layerTruth[layerTruth > 9] = 10
         arrayTruth = convertTruth(layerTruth)
         history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
 

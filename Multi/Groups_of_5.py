@@ -203,7 +203,7 @@ def main():
         arrayTruth = convertTruth(layerTruth)
         history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
 
-        model.save(os.path.join(dirnam, "modelsOf5/Model" + x))
+        model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
 
 
 if __name__ == "__main__":

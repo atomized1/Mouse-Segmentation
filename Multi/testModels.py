@@ -212,11 +212,11 @@ def display(data, model):
 
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), sys.argv[2]), dtype=np.dtype('int32'))
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), int(sys.argv[2])), dtype=np.dtype('int32'))
     for x in range(0, len(mask)):
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
-                new = np.zeros(sys.argv[2])
+                new = np.zeros(int(sys.argv[2]))
                 if mask[x, y, z] < 1000:
                     new[int(mask[x, y, z])] = 1
                     newTruth[x, y, z] = new

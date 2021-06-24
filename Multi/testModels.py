@@ -217,11 +217,11 @@ def convertTruth(mask):
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
                 new = np.zeros(int(sys.argv[2]))
-                if mask[x, y, z] < 1000:
+                if mask[x, y, z] < 10:
                     new[int(mask[x, y, z])] = 1
                     newTruth[x, y, z] = new
                 else:
-                    new[int(mask[x, y, z]) - 1000 + 165] = 1
+                    new[10] = 1
                     newTruth[x, y, z] = new
     return newTruth
 

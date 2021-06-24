@@ -234,7 +234,7 @@ def deconvertTruth(labels):
             for z in range(0, len(labels[0, 0])):
                 biggestNum = 0
                 biggestLabel = 0
-                for a in range(0, sys.argv[2]):
+                for a in range(0, int(sys.argv[2])):
                     if biggestNum < labels[x,y,z,a]:
                         biggestNum = labels[x,y,z,a]
                         biggestLabel = a

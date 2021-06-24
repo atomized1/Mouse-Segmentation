@@ -250,10 +250,10 @@ def imageGen(labels):
     plt.savefig('visuals.png')
 
     img = nib.Nifti1Image(labels, np.eye(4))
-    nib.save(img, 'results' + str(sys.arv[1]) + '.nii.gz')
+    nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
 
 def main():
-    model = keras.models.load_model(sys.arv[1], custom_objects={"dice_metric": dice_metric})
+    model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     arrayData, layerTruth = getData()

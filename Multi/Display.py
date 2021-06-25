@@ -2,6 +2,7 @@ import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import sys
 
 dirnam = os.path.dirname(__file__)
 
@@ -195,12 +196,12 @@ def dice_metric_label(y_true, y_pred, label):
     f.close()
 
     print(label, hard_dice)
-    return y_predFiltered, y_trueFiltered
+    return y_predFiltered, y_trueReshaped
 
 
 def main():
     arrayData, layerTruth = getData("2.txt")
-    results = nib.load(os.path.normpath(os.path.join(dirnam, 'results.nii.gz')))
+    results = nib.load(os.path.normpath(os.path.join(dirnam, sys.argv[1])))
     resultsData = results.get_fdata()
 
     arrayData = np.rot90(arrayData, axes=(1, 3))

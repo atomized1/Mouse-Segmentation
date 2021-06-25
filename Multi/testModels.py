@@ -238,7 +238,6 @@ def deconvertTruth(labels):
                     if biggestNum < labels[x,y,z,a]:
                         biggestNum = labels[x,y,z,a]
                         biggestLabel = a
-                        print("flag")
                 newTruth[x,y,z] = biggestLabel
     return newTruth
 

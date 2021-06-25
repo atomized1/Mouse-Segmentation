@@ -206,6 +206,9 @@ def main():
 
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    layerTruth = layerTruth - 10
+    layerTruth[layerTruth < 0] = 10
+    layerTruth[layerTruth > 9] = 10
 
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)

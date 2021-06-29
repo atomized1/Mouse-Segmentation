@@ -234,10 +234,12 @@ def deconvertTruth(labels):
             for z in range(0, len(labels[0, 0])):
                 biggestNum = 0
                 biggestLabel = 0
+                print(labels[x, y, z])
                 for a in range(0, int(sys.argv[2])):
                     if biggestNum < labels[x,y,z,a]:
                         biggestNum = labels[x,y,z,a]
                         biggestLabel = a
+                print(biggestLabel)
                 newTruth[x,y,z] = biggestLabel
     return newTruth
 
@@ -255,7 +257,7 @@ def imageGen(labels):
 def main():
     model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric, keras.metrics.MeanIoU])
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))

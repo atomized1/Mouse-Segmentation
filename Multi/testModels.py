@@ -11,24 +11,19 @@ dirnam = os.path.dirname(__file__)
 
 def dice_metric(y_true, y_pred):
 
-    threshold = 0.5
+    y_pred = tf.math.argmin(y_pred, axis=3)
+    y_true = tf.math.argmin(y_true, axis=3)
 
-    mask = y_pred > threshold
-    mask = tf.cast(mask, dtype=tf.float32)
-    y_pred = tf.multiply(y_pred, mask)
-    mask = y_true > threshold
-    mask = tf.cast(mask, dtype=tf.float32)
-    y_true = tf.multiply(y_true, mask)
-
-    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
-    l = tf.reduce_sum(y_pred)
-    r = tf.reduce_sum(y_true)
+    inse = y_pred == y_true
+    l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
+    r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
 
     hard_dice = (2. * inse) / (l + r)
 
     hard_dice = tf.reduce_mean(hard_dice)
 
     return hard_dice
+
 
 
 def getData():
@@ -238,9 +233,6 @@ def deconvertTruth(labels):
                     if biggestNum < labels[x,y,z,a]:
                         biggestNum = labels[x,y,z,a]
                         biggestLabel = a
-                if biggestLabel != 10:
-                    print(biggestLabel)
-                    print(labels[x, y, z])
                 newTruth[x,y,z] = biggestLabel
     return newTruth
 

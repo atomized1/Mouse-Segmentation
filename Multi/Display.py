@@ -214,7 +214,7 @@ def main():
     total_dice(layerTruth, resultsData)
     totalPredPixels = 0
     totalTruePixels = 0
-    for x in range(0, 333):
+    for x in range(0, 11):
         predPixels, truePixels = dice_metric_label(layerTruth, resultsData, x)
         totalPredPixels += predPixels
         totalTruePixels += truePixels

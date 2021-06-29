@@ -188,6 +188,8 @@ def dice_metric_label(y_true, y_pred, label):
     intersect = intersect.sum()
     y_predFiltered = y_predFiltered.sum()
     y_trueReshaped = y_trueReshaped.sum()
+    
+    print(y_trueFiltered, y_trueFiltered)
 
     hard_dice = 2 * intersect / (y_predFiltered + y_trueReshaped)
 

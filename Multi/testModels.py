@@ -18,6 +18,8 @@ def dice_metric(y_true, y_pred):
     inse = tf.reduce_sum(tf.cast(inse, tf.float32))
     l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
     r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
+    l = tf.cast(l, tf.float32)
+    r = tf.cast(r, tf.float32)
 
     hard_dice = (2. * inse) / (l + r)
 

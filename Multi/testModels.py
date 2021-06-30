@@ -261,7 +261,7 @@ def main():
             sampleTenTrue[x, y, 0] = [1, 0, 0]
             sampleTenTrue[x, y, 1] = [0, 1, 0]
             sampleTenTrue[x, y, 2] = [0, 0, 1]
-            sampleTenPred[x, y, 0] = [0.9, 0.1, 0.1]
+            sampleTenPred[x, y, 0] = [0.1, 0.9, 0.1]
             sampleTenPred[x, y, 1] = [0.1, 0.9, 0.1]
             sampleTenPred[x, y, 2] = [0.1, 0.1, 0.9]
     sampleTTen = tf.constant(sampleTenTrue)

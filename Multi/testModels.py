@@ -17,6 +17,7 @@ def dice_metric(y_true, y_pred):
     print(y_true)
 
     inse = tf.equal(y_pred, y_true)
+    print(inse)
     inse = tf.reduce_sum(tf.cast(inse, tf.float32))
     print(inse)
     l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])

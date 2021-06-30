@@ -26,7 +26,7 @@ def dice_metric(y_true, y_pred):
 
     hard_dice = (2. * inse) / (l + r)
 
-    hard_dice = tf.reduce_mean(hard_dice)
+    #hard_dice = tf.reduce_mean(hard_dice)
 
     return hard_dice
 

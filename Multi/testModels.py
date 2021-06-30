@@ -12,11 +12,11 @@ dirnam = os.path.dirname(__file__)
 def dice_metric(y_true, y_pred):
 
     y_pred = tf.math.argmin(y_pred, axis=3)
+    print(y_pred)
     y_true = tf.math.argmin(y_true, axis=3)
 
     inse = y_pred == y_true
     inse = tf.reduce_sum(tf.cast(inse, tf.float32))
-    print(inse)
     l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
     r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
     l = tf.cast(l, tf.float32)

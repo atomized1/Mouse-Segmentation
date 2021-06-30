@@ -259,12 +259,12 @@ def main():
     for x in range(0, 3):
         for y in range(0, 3):
             for z in range(0, 3):
-                sampleTenTrue[x, y, z, 0] = (1, 0, 0)
-                sampleTenTrue[x, y, z, 1] = (0, 1, 0)
-                sampleTenTrue[x, y, z, 2] = (0, 0, 1)
-                sampleTenPred[x, y, z, 0] = (0.9, 0.1, 0.1)
-                sampleTenPred[x, y, z, 1] = (0.1, 0.9, 0.1)
-                sampleTenPred[x, y, z, 2] = (0.1, 0.1, 0.9)
+                sampleTenTrue[x, y, z, 0] = [1, 0, 0]
+                sampleTenTrue[x, y, z, 1] = [0, 1, 0]
+                sampleTenTrue[x, y, z, 2] = [0, 0, 1]
+                sampleTenPred[x, y, z, 0] = [0.9, 0.1, 0.1]
+                sampleTenPred[x, y, z, 1] = [0.1, 0.9, 0.1]
+                sampleTenPred[x, y, z, 2] = [0.1, 0.1, 0.9]
     sampleTTen = tf.constant(sampleTenTrue)
     samplePTen = tf.constant(sampleTenPred)
     print(dice_metric(sampleTTen, samplePTen))

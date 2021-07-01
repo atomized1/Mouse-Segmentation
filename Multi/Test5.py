@@ -182,6 +182,8 @@ def main():
 
     output = keras.layers.Conv2D(filters=332, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
 
+    cp_callback = keras.callbacks.ModelCheckpoint(filepath=os.path.join(dirnam, "models/cp-{epoch:04d}.ckpt"), verbose=1, save_weights_only=True, period=10)
+
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
@@ -198,7 +200,7 @@ def main():
 
     print(len(arrayData))
 
-    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
+    history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=cp_callback, batch_size=100)
 
     model.save(os.path.join(dirnam, "modelsGlobal/Model"))
 

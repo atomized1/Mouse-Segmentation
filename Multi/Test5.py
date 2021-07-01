@@ -5,28 +5,27 @@ import numpy as np
 import os
 
 dirnam = os.path.dirname(__file__)
-epochs = 50
+epochs = 20
 BURST = 10
 
 def dice_metric(y_true, y_pred):
 
-    y_pred = tf.math.argmax(y_pred, axis=3)
-    #print(y_pred)
-    y_true = tf.math.argmax(y_true, axis=3)
-    #print(y_true)
+    threshold = 0.5
 
-    inse = tf.equal(y_pred, y_true)
-    #print(inse)
-    inse = tf.reduce_sum(tf.cast(inse, tf.float32))
-    #print(inse)
-    l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
-    r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
-    l = tf.cast(l, tf.float32)
-    r = tf.cast(r, tf.float32)
+    mask = y_pred > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_pred = tf.multiply(y_pred, mask)
+    mask = y_true > threshold
+    mask = tf.cast(mask, dtype=tf.float32)
+    y_true = tf.multiply(y_true, mask)
+
+    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
+    l = tf.reduce_sum(y_pred)
+    r = tf.reduce_sum(y_true)
 
     hard_dice = (2. * inse) / (l + r)
 
-    #hard_dice = tf.reduce_mean(hard_dice)
+    hard_dice = tf.reduce_mean(hard_dice)
 
     return hard_dice
 
@@ -182,9 +181,11 @@ def main():
 
     output = keras.layers.Conv2D(filters=332, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
 
+    cp_callback = keras.callbacks.ModelCheckpoint(filepath=os.path.join(dirnam, "models/cp-{epoch:04d}.ckpt"), verbose=1, save_weights_only=True, period=10)
+
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
@@ -198,7 +199,7 @@ def main():
 
     print(len(arrayData))
 
-    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
+    history = model.fit(arrayData, arrayTruth, epochs=epochs, callbacks=[cp_callback], batch_size=100)
 
     model.save(os.path.join(dirnam, "modelsGlobal/Model"))
 

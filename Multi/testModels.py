@@ -11,9 +11,9 @@ dirnam = os.path.dirname(__file__)
 
 def dice_metric(y_true, y_pred):
 
-    y_pred = tf.math.argmin(y_pred, axis=3)
+    y_pred = tf.math.argmax(y_pred, axis=3)
     #print(y_pred)
-    y_true = tf.math.argmin(y_true, axis=3)
+    y_true = tf.math.argmax(y_true, axis=3)
     #print(y_true)
 
     inse = tf.equal(y_pred, y_true)
@@ -254,20 +254,6 @@ def imageGen(labels):
     nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
 
 def main():
-    sampleTenTrue = np.empty((3, 3, 3, 3), dtype=np.dtype('float32'))
-    sampleTenPred = np.empty((3, 3, 3, 3), dtype=np.dtype('float32'))
-    for x in range(0, 3):
-        for y in range(0, 3):
-            sampleTenTrue[x, y, 0] = [1, 0, 0]
-            sampleTenTrue[x, y, 1] = [0, 1, 0]
-            sampleTenTrue[x, y, 2] = [0, 0, 1]
-            sampleTenPred[x, y, 0] = [0.9, 0.1, 0.1]
-            sampleTenPred[x, y, 1] = [0.1, 0.9, 0.1]
-            sampleTenPred[x, y, 2] = [0.1, 0.1, 0.9]
-    sampleTenPred[0,0,0] = [0.1, 0.9, 0.1]
-    sampleTTen = tf.constant(sampleTenTrue)
-    samplePTen = tf.constant(sampleTenPred)
-    print(dice_metric(sampleTTen, samplePTen))
     model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])

@@ -206,6 +206,9 @@ def main():
     results = nib.load(os.path.normpath(os.path.join(dirnam, sys.argv[1])))
     resultsData = results.get_fdata()
 
+    arrayData = np.rot90(arrayData, axes=(1, 3))
+    layerTruth = np.rot90(layerTruth, axes=(1, 3))
+
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)
     totalPredPixels = 0

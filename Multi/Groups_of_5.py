@@ -157,18 +157,19 @@ def multichannel(data, truth):
 
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 3, 11), dtype=np.dtype('int32'))
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 11), dtype=np.dtype('int32'))
     for x in range(0, len(mask)):
+        print(x)
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
                 for a in range(0, 3):
                     new = np.zeros(11)
                     if mask[x, y, z, a] < 1000:
-                        new[int(mask[x, y, z, a])] = 1
-                        newTruth[x, y, z, a] = new
+                        new[int(mask[x, y, z])] = 1
+                        newTruth[x, y, z] = new
                     else:
-                        new[int(mask[x, y, z, a]) - 1000 + 165] = 1
-                        newTruth[x, y, z, a] = new
+                        new[int(mask[x, y, z]) - 1000 + 165] = 1
+                        newTruth[x, y, z] = new
     return newTruth
 
 

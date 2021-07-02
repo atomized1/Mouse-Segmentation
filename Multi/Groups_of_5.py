@@ -11,14 +11,14 @@ BURST = 10
 def dice_metric(y_true, y_pred):
 
     y_pred = tf.math.argmax(y_pred, axis=3)
-    print(y_pred)
+    #print(y_pred)
     y_true = tf.math.argmax(y_true, axis=3)
-    print(y_true)
+    #print(y_true)
 
     inse = tf.equal(y_pred, y_true)
-    print(inse)
+    #print(inse)
     inse = tf.reduce_sum(tf.cast(inse, tf.float32))
-    print(inse)
+    #print(inse)
     l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
     r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
     l = tf.cast(l, tf.float32)
@@ -198,7 +198,7 @@ def main():
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
+    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))

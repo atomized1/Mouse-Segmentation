@@ -145,7 +145,7 @@ def initialize(imageList, maskList):
 def multichannel(data, truth):
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     arrayTruth = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
-    for x in range(0, len(data)):
+    for x in range(1, len(data)):
         for y in range(0, len(data[0])):
             for z in range(0, len(data[0, 0])):
                 arrayData[x, y, z] = [data[x-1, y, z], data[x, y, z], data[x+1, y, z]]
@@ -162,14 +162,13 @@ def convertTruth(mask):
         print(x)
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
-                for a in range(0, 3):
-                    new = np.zeros(11)
-                    if mask[x, y, z, a] < 1000:
-                        new[int(mask[x, y, z])] = 1
-                        newTruth[x, y, z] = new
-                    else:
-                        new[int(mask[x, y, z]) - 1000 + 165] = 1
-                        newTruth[x, y, z] = new
+                new = np.zeros(11)
+                if mask[x, y, z] < 1000:
+                    new[int(mask[x, y, z])] = 1
+                    newTruth[x, y, z] = new
+                else:
+                    new[int(mask[x, y, z]) - 1000 + 165] = 1
+                    newTruth[x, y, z] = new
     return newTruth
 
 

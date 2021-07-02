@@ -148,8 +148,12 @@ def multichannel(data, truth):
     for x in range(1, len(data)-1):
         for y in range(0, len(data[0])):
             for z in range(0, len(data[0, 0])):
-                arrayData[x, y, z] = [data[x-1, y, z], data[x, y, z], data[x+1, y, z]]
-                arrayTruth[x, y, z] = [truth[x-1, y, z], truth[x, y, z], truth[x+1, y, z]]
+                arrayData[x, y, z, 0] = data[x-1, y, z]
+                arrayData[x, y, z, 1] = data[x, y, z]
+                arrayData[x, y, z, 2] = data[x+1, y, z]
+                arrayTruth[x, y, z, 0] = truth[x-1, y, z]
+                arrayTruth[x, y, z, 1] = truth[x, y, z]
+                arrayTruth[x, y, z, 2] = truth[x+1, y, z]
 
     return arrayData, arrayTruth
 
@@ -224,3 +228,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

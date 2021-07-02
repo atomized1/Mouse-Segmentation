@@ -142,20 +142,16 @@ def initialize(imageList, maskList):
     return arrayData, arrayTruth
 
 
-def multichannel(data, truth):
+def multichannel(data):
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
-    arrayTruth = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     for x in range(1, len(data)-1):
         for y in range(0, len(data[0])):
             for z in range(0, len(data[0, 0])):
                 arrayData[x, y, z, 0] = data[x-1, y, z]
                 arrayData[x, y, z, 1] = data[x, y, z]
                 arrayData[x, y, z, 2] = data[x+1, y, z]
-                arrayTruth[x, y, z, 0] = truth[x-1, y, z]
-                arrayTruth[x, y, z, 1] = truth[x, y, z]
-                arrayTruth[x, y, z, 2] = truth[x+1, y, z]
 
-    return arrayData, arrayTruth
+    return arrayData
 
 
 
@@ -220,8 +216,8 @@ def main():
         layerTruth[layerTruth < 0] = 10
         layerTruth[layerTruth > 9] = 10
         arrayTruth = convertTruth(layerTruth)
-        arrayDataMult, arrayTruthMult = multichannel(arrayData, arrayTruth)
-        history = model.fit(arrayDataMult, arrayTruthMult, epochs=epochs, batch_size=100)
+        arrayDataMult = multichannel(arrayData)
+        history = model.fit(arrayDataMult, arrayTruth, epochs=epochs, batch_size=100)
 
         model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
 

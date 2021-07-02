@@ -10,22 +10,23 @@ BURST = 10
 
 def dice_metric(y_true, y_pred):
 
-    threshold = 0.5
+    y_pred = tf.math.argmax(y_pred, axis=3)
+    print(y_pred)
+    y_true = tf.math.argmax(y_true, axis=3)
+    print(y_true)
 
-    mask = y_pred > threshold
-    mask = tf.cast(mask, dtype=tf.float32)
-    y_pred = tf.multiply(y_pred, mask)
-    mask = y_true > threshold
-    mask = tf.cast(mask, dtype=tf.float32)
-    y_true = tf.multiply(y_true, mask)
-
-    inse = tf.reduce_sum(tf.multiply(y_pred, y_true))
-    l = tf.reduce_sum(y_pred)
-    r = tf.reduce_sum(y_true)
+    inse = tf.equal(y_pred, y_true)
+    print(inse)
+    inse = tf.reduce_sum(tf.cast(inse, tf.float32))
+    print(inse)
+    l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
+    r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
+    l = tf.cast(l, tf.float32)
+    r = tf.cast(r, tf.float32)
 
     hard_dice = (2. * inse) / (l + r)
 
-    hard_dice = tf.reduce_mean(hard_dice)
+    #hard_dice = tf.reduce_mean(hard_dice)
 
     return hard_dice
 
@@ -73,6 +74,8 @@ def getData():
     #Loading in all the data from the filenames using the initialize function defined below
     arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
     #arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
+    arrayData = np.rot90(arrayData, axes=(1, 3))
+    layerTruth = np.rot90(arrayTruth, axes=(1, 3))
 
     return arrayData, arrayTruth, #arrayPredictData, arrayPredictTruth
 
@@ -141,6 +144,19 @@ def initialize(imageList, maskList):
     return arrayData, arrayTruth
 
 
+def multichannel(data, truth):
+    arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
+    arrayTruth = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
+    for x in range(0, len(data)):
+        for y in range(0, len(data[0])):
+            for z in range(0, len(data[0, 0])):
+                arrayData[x, y, z] = [data[x-1, y, z], data[x, y, z], data[x+1, y, z]]
+                arrayTruth[x, y, z] = [truth[x-1, y, z], truth[x, y, z], truth[x+1, y, z]]
+
+    return arrayData, arrayTruth
+
+
+
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
     newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 11), dtype=np.dtype('int32'))
@@ -158,7 +174,7 @@ def convertTruth(mask):
 
 
 def main():
-    input_layer = keras.layers.Input(shape=(100, 148, 1))
+    input_layer = keras.layers.Input(shape=(100, 148, 3))
     conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
     conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
     pool1 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1b)
@@ -183,11 +199,9 @@ def main():
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
+    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
     arrayData, layerTruth = getData()
-    arrayData = np.rot90(arrayData, axes=(1, 3))
-    layerTruth = np.rot90(layerTruth, axes=(1, 3))
 
     print(len(layerTruth))
     print(len(layerTruth[0]))
@@ -201,7 +215,8 @@ def main():
         layerTruth[layerTruth < 0] = 10
         layerTruth[layerTruth > 9] = 10
         arrayTruth = convertTruth(layerTruth)
-        history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
+        arrayDataMult, arrayTruthMult = multichannel(arrayData, arrayTruth)
+        history = model.fit(arrayDataMult, arrayTruthMult, epochs=epochs, batch_size=100)
 
         model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
 

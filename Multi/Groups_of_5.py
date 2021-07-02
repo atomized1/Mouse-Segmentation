@@ -206,7 +206,7 @@ def main():
     print(len(layerTruth))
     print(len(layerTruth[0]))
     print(len(layerTruth[0, 0]))
-    print(layerTruth[0, 0, 0])
+    print(len(layerTruth[0, 0, 0]))
 
     print(len(arrayData))
 

@@ -145,7 +145,7 @@ def initialize(imageList, maskList):
 def multichannel(data, truth):
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     arrayTruth = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
-    for x in range(1, len(data)):
+    for x in range(1, len(data)-1):
         for y in range(0, len(data[0])):
             for z in range(0, len(data[0, 0])):
                 arrayData[x, y, z] = [data[x-1, y, z], data[x, y, z], data[x+1, y, z]]
@@ -224,4 +224,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -74,8 +74,6 @@ def getData():
     #Loading in all the data from the filenames using the initialize function defined below
     arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
     #arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
-    arrayData = np.rot90(arrayData, axes=(1, 3))
-    layerTruth = np.rot90(arrayTruth, axes=(1, 3))
 
     return arrayData, arrayTruth, #arrayPredictData, arrayPredictTruth
 
@@ -202,7 +200,9 @@ def main():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
 
     arrayData, layerTruth = getData()
-
+    arrayData = np.rot90(arrayData, axes=(1, 3))
+    layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    
     print(len(layerTruth))
     print(len(layerTruth[0]))
     print(len(layerTruth[0, 0]))

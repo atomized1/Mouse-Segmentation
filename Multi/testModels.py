@@ -252,6 +252,19 @@ def imageGen(labels):
 
     img = nib.Nifti1Image(labels, np.eye(4))
     nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
+    
+    
+def multichannel(data):
+    arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
+    for x in range(1, len(data)-1):
+        for y in range(0, len(data[0])):
+            for z in range(0, len(data[0, 0])):
+                arrayData[x, y, z, 0] = data[x-1, y, z]
+                arrayData[x, y, z, 1] = data[x, y, z]
+                arrayData[x, y, z, 2] = data[x+1, y, z]
+
+    return arrayData
+    
 
 def main():
     model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})
@@ -261,6 +274,7 @@ def main():
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
+    arrayData = multichannel(arrayData)
     model.evaluate(arrayData, layerTruth)
     history = model.predict(arrayData)
     history = deconvertTruth(history)

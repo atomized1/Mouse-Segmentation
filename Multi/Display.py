@@ -208,12 +208,13 @@ def main():
 
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    layerTruth = layerTruth - 40
 
     overlap(resultsData, layerTruth)
     total_dice(layerTruth, resultsData)
     totalPredPixels = 0
     totalTruePixels = 0
-    for x in range(0, 332):
+    for x in range(0, 11):
         predPixels, truePixels = dice_metric_label(layerTruth, resultsData, x)
         totalPredPixels += predPixels
         totalTruePixels += truePixels

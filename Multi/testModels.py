@@ -214,11 +214,12 @@ def display(data, model):
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
     newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), int(sys.argv[2])), dtype=np.dtype('int32'))
+    mask = mask - 40
     for x in range(0, len(mask)):
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
                 new = np.zeros(int(sys.argv[2]))
-                if mask[x, y, z] < 10:
+                if 10 > mask[x, y, z] >= 0:
                     new[int(mask[x, y, z])] = 1
                     newTruth[x, y, z] = new
                 else:
@@ -252,8 +253,8 @@ def imageGen(labels):
 
     img = nib.Nifti1Image(labels, np.eye(4))
     nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
-    
-    
+
+
 def multichannel(data):
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     for x in range(1, len(data)-1):
@@ -264,7 +265,7 @@ def multichannel(data):
                 arrayData[x, y, z, 2] = data[x+1, y, z]
 
     return arrayData
-    
+
 
 def main():
     model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})

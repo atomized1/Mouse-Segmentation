@@ -211,11 +211,11 @@ def main():
 
     print(len(arrayData))
 
-    for x in range(0, 40, 10):
-        layerTruth = layerTruth - x
-        layerTruth[layerTruth < 0] = 10
-        layerTruth[layerTruth > 9] = 10
-        arrayTruth = convertTruth(layerTruth)
+    for x in range(10, 332, 10):
+        layerTruthNew = layerTruth - x
+        layerTruthNew[layerTruthNew < 0] = 10
+        layerTruthNew[layerTruthNew > 9] = 10
+        arrayTruth = convertTruth(layerTruthNew)
         arrayDataMult = multichannel(arrayData)
         history = model.fit(arrayDataMult, arrayTruth, epochs=epochs, batch_size=100)
 

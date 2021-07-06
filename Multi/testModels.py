@@ -278,6 +278,7 @@ def main():
     arrayData = multichannel(arrayData)
     model.evaluate(arrayData, layerTruth)
     history = model.predict(arrayData)
+    print(history)
     history = deconvertTruth(history)
 
     imageGen(history)

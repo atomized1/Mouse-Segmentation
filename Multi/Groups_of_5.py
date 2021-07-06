@@ -211,7 +211,7 @@ def main():
 
     print(len(arrayData))
 
-    for x in range(30, 332, 10):
+    for x in range(0, 40, 10):
         layerTruth = layerTruth - x
         layerTruth[layerTruth < 0] = 10
         layerTruth[layerTruth > 9] = 10

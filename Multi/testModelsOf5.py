@@ -268,17 +268,17 @@ def multichannel(data):
 
 
 def main():
-    model = keras.models.load_model(sys.argv[1], custom_objects={"dice_metric": dice_metric})
-    opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
     arrayData = multichannel(arrayData)
     totalImage = np.zeros((len(layerTruth), len(layerTruth), len(layerTruth)))
-    totaImage = totalImage + 400
+    totalImage = totalImage + 400
     for x in range(0, 80, 10):
+        model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
+        opt = keras.optimizers.Adam(learning_rate=0.0005)
+        model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
         model.evaluate(arrayData, layerTruth)
         history = model.predict(arrayData)
         history = deconvertTruth(history)

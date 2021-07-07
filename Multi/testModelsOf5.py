@@ -273,7 +273,7 @@ def main():
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
     arrayData = multichannel(arrayData)
-    totalImage = np.zeros((len(layerTruth), len(layerTruth), len(layerTruth)))
+    totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     totalImage = totalImage + 400
     for x in range(0, 80, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})

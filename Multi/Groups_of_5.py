@@ -9,7 +9,8 @@ epochs = 20
 BURST = 10
 
 def dice_metric(y_true, y_pred):
-
+#Used by tensorflow to calculate dice_score each epoch
+    
     y_pred = tf.math.argmax(y_pred, axis=3)
     #print(y_pred)
     y_true = tf.math.argmax(y_true, axis=3)
@@ -143,6 +144,8 @@ def initialize(imageList, maskList):
 
 
 def multichannel(data):
+    #Making the data multichanel.  Taking the values from one layer above and one layer below
+    #and making them into 3 indexes of a higher dimensional array
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     for x in range(1, len(data)-1):
         for y in range(0, len(data[0])):
@@ -173,6 +176,7 @@ def convertTruth(mask):
 
 
 def main():
+    #Constructing all the layers for the model
     input_layer = keras.layers.Input(shape=(100, 148, 3))
     conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
     conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
@@ -200,23 +204,29 @@ def main():
     opt = keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
 
+    #Loading in al images
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
 
-    print(len(layerTruth))
-    print(len(layerTruth[0]))
-    print(len(layerTruth[0, 0]))
-    print(len(layerTruth[0, 0, 0]))
+    #print(len(layerTruth))
+    #print(len(layerTruth[0]))
+    #print(len(layerTruth[0, 0]))
+    #print(len(layerTruth[0, 0, 0]))
 
-    print(len(arrayData))
+    #print(len(arrayData))
 
-    for x in range(190, 332, 10):
+    #Loops through in groups of 10, creating a model for each group
+    for x in range(0, 332, 10):
+        #decreasing the labels so that the ones we care about are from 0 to 9
         layerTruthNew = layerTruth - x
+        #Setting everything outside that range to 10
         layerTruthNew[layerTruthNew < 0] = 10
         layerTruthNew[layerTruthNew > 9] = 10
+        #Changing data to 1 hot arrays, and multichaneling it
         arrayTruth = convertTruth(layerTruthNew)
         arrayDataMult = multichannel(arrayData)
+        #training and saving each model
         history = model.fit(arrayDataMult, arrayTruth, epochs=epochs, batch_size=100)
 
         model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))

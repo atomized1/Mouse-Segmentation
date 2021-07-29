@@ -282,9 +282,11 @@ def main():
         model.evaluate(arrayData, layerTruth)
         history = model.predict(arrayData)
         history = deconvertTruth(history)
-        np.where(history == 10, 400, history)
-        print(np.unique(history))
-        np.where(totalImage == 400, history + x, totalImage)
+        for a in range(0, len(totalImage)):
+            for b in range(0, len(totalImage[0])):
+                for c in range(0, len(totalImage[0, 0])):
+                    if totalImage[a, b, c] == 400 and history[a, b, c] != 10:
+                        totalImage[a, b , c] = history[a, b, c] + x
         print("The unique labels are: ")
         print(np.unique(totalImage))
 

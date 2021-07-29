@@ -283,7 +283,7 @@ def main():
         history = model.predict(arrayData)
         history = deconvertTruth(history)
         np.where(history == 10, 400, history)
-        #print(np.unique(history))
+        print(np.unique(history))
         np.where(totalImage == 400, history + x, totalImage)
         print("The unique labels are: ")
         print(np.unique(totalImage))

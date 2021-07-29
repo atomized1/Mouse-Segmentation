@@ -289,6 +289,8 @@ def main():
                         totalImage[a, b , c] = history[a, b, c] + x
         print("The unique labels are: ")
         print(np.unique(totalImage))
+        img = nib.Nifti1Image(totalImage, np.eye(4))
+        nib.save(img, 'checkpoint' + '.nii.gz')
 
     imageGen(totalImage)
 

@@ -275,7 +275,7 @@ def main():
     arrayData = multichannel(arrayData)
     totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     totalImage = totalImage + 400
-    for x in range(0, 140, 10):
+    for x in range(0, 330, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
         opt = keras.optimizers.Adam(learning_rate=0.0005)
         model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
@@ -283,8 +283,10 @@ def main():
         history = model.predict(arrayData)
         history = deconvertTruth(history)
         np.where(history == 10, 400, history)
-        #print(history)
+        #print(np.unique(history))
         np.where(totalImage == 400, history + x, totalImage)
+        print("The unique labels are: ")
+        print(np.unique(totalImage))
 
     imageGen(totalImage)
 

@@ -268,7 +268,7 @@ def multichannel(data):
 
 
 def sortLabels(data):
-    totals = np.empty(332)
+    totals = np.empty(333)
     for x in range(0, 333):
         totals[x] = np.sum(data == x)
     sortedIndex = np.argsort(totals)

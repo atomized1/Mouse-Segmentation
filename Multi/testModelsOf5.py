@@ -293,11 +293,11 @@ def main():
         model.evaluate(arrayData, layerTruth)
         history = model.predict(arrayData)
         history = deconvertTruth(history)
-        predictions[np.floor(x/10)] = history
+        predictions[int(x/10)] = history
 
     print("Filling in from least to greatest")
     for x in sortedIndexes:
-        model = np.floor(x/10)
+        model = int(x/10)
         label = x % 10
         for a in range(0, len(totalImage)):
             for b in range(0, len(totalImage[0])):

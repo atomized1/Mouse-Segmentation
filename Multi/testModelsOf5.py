@@ -286,7 +286,7 @@ def main():
     sortedIndexes = sortLabels(trainingArrayData)
     predictions = np.empty((33, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     print("Predicting Labels")
-    for x in range(0, 330, 10):
+    for x in range(0, 340, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
         opt = keras.optimizers.Adam(learning_rate=0.0005)
         model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])

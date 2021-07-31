@@ -293,7 +293,7 @@ def main():
         model.evaluate(arrayData, layerTruth)
         history = model.predict(arrayData)
         history = deconvertTruth(history)
-        predictions[x/10] = history
+        predictions[np.floor(x/10)] = history
 
     print("Filling in from least to greatest")
     for x in sortedIndexes:

@@ -73,10 +73,10 @@ def getData():
                 alt = 0
 
     #Loading in all the data from the filenames using the initialize function defined below
-    #arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
+    arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
     arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
 
-    return arrayPredictData, arrayPredictTruth
+    return arrayTruth, arrayPredictData, arrayPredictTruth
 
 
 def normalize(data):
@@ -267,14 +267,25 @@ def multichannel(data):
     return arrayData
 
 
+def sortLabels(data):
+    totals = np.empty(332)
+    for x in range(0, 333):
+        totals[x] = np.sum(data == x)
+    sortedIndex = np.argsort(totals)
+    return sortedIndex
+
+
 def main():
-    arrayData, layerTruth = getData()
+    trainingArrayData, arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
     arrayData = multichannel(arrayData)
     totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     totalImage = totalImage + 400
+    sortedIndexes = sortLabels(trainingArrayData)
+    predictions = np.empty((33, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
+    print("Predicting Labels")
     for x in range(0, 330, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
         opt = keras.optimizers.Adam(learning_rate=0.0005)
@@ -282,11 +293,17 @@ def main():
         model.evaluate(arrayData, layerTruth)
         history = model.predict(arrayData)
         history = deconvertTruth(history)
+        predictions[x/10] = history
+
+    print("Filling in from least to greatest")
+    for x in sortedIndexes:
+        model = np.floor(x/10)
+        label = x % 10
         for a in range(0, len(totalImage)):
             for b in range(0, len(totalImage[0])):
                 for c in range(0, len(totalImage[0, 0])):
-                    if totalImage[a, b, c] == 400 and history[a, b, c] != 10:
-                        totalImage[a, b , c] = history[a, b, c] + x
+                    if totalImage[a, b, c] == 400 and predictions[model, a, b, c] == label:
+                        totalImage[a, b, c] = x
         print("The unique labels are: ")
         print(np.unique(totalImage))
         img = nib.Nifti1Image(totalImage, np.eye(4))

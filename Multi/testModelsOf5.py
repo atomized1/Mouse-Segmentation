@@ -284,7 +284,7 @@ def main():
     totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     totalImage = totalImage + 400
     sortedIndexes = sortLabels(trainingArrayData)
-    predictions = np.empty((33, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
+    predictions = np.empty((34, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     print("Predicting Labels")
     for x in range(0, 340, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})

@@ -1,16 +1,16 @@
 import tensorflow as tf
 import nibabel as nib
 import keras
+import keyboard
 import numpy as np
+import matplotlib.pyplot as plt
 import os
+import sys
 
 dirnam = os.path.dirname(__file__)
-epochs = 20
-BURST = 10
 
 def dice_metric(y_true, y_pred):
-#Used by tensorflow to calculate dice_score each epoch
-    
+
     y_pred = tf.math.argmax(y_pred, axis=3)
     #print(y_pred)
     y_true = tf.math.argmax(y_true, axis=3)
@@ -74,9 +74,9 @@ def getData():
 
     #Loading in all the data from the filenames using the initialize function defined below
     arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
-    #arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
+    arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
 
-    return arrayData, arrayTruth, #arrayPredictData, arrayPredictTruth
+    return arrayTruth, arrayPredictData, arrayPredictTruth
 
 
 def normalize(data):
@@ -143,9 +143,119 @@ def initialize(imageList, maskList):
     return arrayData, arrayTruth
 
 
+def display(data, model):
+
+    #Saving the model, and generating the visual to insure it worked
+    model.save('myModel')
+    predictions = model.predict(data[50:51])
+    predictions = np.round(predictions)
+
+    plt.ion()
+    plt.axis('off')
+    plt.figure(4)
+
+    print(len(predictions[0][0][0]))
+
+    plt.imshow(data[50, :, :, 0], cmap='gray')
+    plt.imshow(predictions[0, :, :, 0], alpha=0.2)
+    plt.draw()
+    plt.pause(0.01)
+
+    x = 0
+    View = 0
+
+    while True:
+        if View == 0:
+            if x > len(data[50, 0, 0]) - 1:
+                x = len(data[50, 0, 0]) - 1
+            plt.clf()
+            plt.imshow(data[50, :, :, x], cmap='gray')
+            plt.imshow(predictions[0, :, :, x], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.01)
+        if View == 1:
+            if x > len(data[3][0]) - 1:
+                x = len(predictions[0][0]) - 1
+            plt.clf()
+            plt.imshow(data[50, :, x, :], cmap='gray')
+            plt.imshow(predictions[0, :, x, :], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.01)
+        if View == 2:
+            if x > len(data[0]) - 1:
+                x = len(predictions[0]) - 1
+            plt.clf()
+            plt.imshow(data[50, x, :, :], cmap='gray')
+            plt.imshow(predictions[0, x, :, :], alpha=0.2)
+            plt.axis('off')
+            plt.draw()
+            plt.pause(0.01)
+
+        if keyboard.read_key() == "t":
+            x += 1
+            print(x)
+        elif keyboard.read_key() == "g":
+            x -= 1
+            print(x)
+        elif keyboard.read_key() == "w":
+            View = 0
+        elif keyboard.read_key() == "e":
+            View = 1
+        elif keyboard.read_key() == "r":
+            View = 2
+        elif keyboard.read_key() == "y":
+            break
+        if x < 0:
+            x = 0
+
+
+def convertTruth(mask):
+    #Designing a 1-hot array that can be compared to the output of the larger model
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), int(sys.argv[2])), dtype=np.dtype('int32'))
+    mask = mask - 40
+    for x in range(0, len(mask)):
+        for y in range(0, len(mask[0])):
+            for z in range(0, len(mask[0, 0])):
+                new = np.zeros(int(sys.argv[2]))
+                if 10 > mask[x, y, z] >= 0:
+                    new[int(mask[x, y, z])] = 1
+                    newTruth[x, y, z] = new
+                else:
+                    new[10] = 1
+                    newTruth[x, y, z] = new
+    return newTruth
+
+
+def deconvertTruth(labels):
+    newTruth = np.empty((len(labels), len(labels[0]), len(labels[0,0])), dtype=np.dtype('int32'))
+    for x in range(0, len(labels)):
+        print(x)
+        for y in range(0, len(labels[0])):
+            for z in range(0, len(labels[0, 0])):
+                biggestNum = 0
+                biggestLabel = 0
+                for a in range(0, int(sys.argv[2])):
+                    if biggestNum < labels[x,y,z,a]:
+                        biggestNum = labels[x,y,z,a]
+                        biggestLabel = a
+                newTruth[x,y,z] = biggestLabel
+    return newTruth
+
+
+def imageGen(labels):
+    plt.figure(1)
+    print(labels[70, 60, 60])
+    labels = labels.astype('int32')
+    plt.imshow(labels[70, :, :])
+    plt.savefig('visuals.png')
+
+    img = nib.Nifti1Image(labels, np.eye(4))
+    nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
+
+
 def multichannel(data):
-    #Making the data multichanel.  Taking the values from one layer above and one layer below
-    #and making them into 3 indexes of a higher dimensional array
     arrayData = np.empty((len(data), len(data[0]), len(data[0, 0]), 3))
     for x in range(1, len(data)-1):
         for y in range(0, len(data[0])):
@@ -157,81 +267,51 @@ def multichannel(data):
     return arrayData
 
 
-
-def convertTruth(mask):
-    #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 11), dtype=np.dtype('int32'))
-    for x in range(0, len(mask)):
-        print(x)
-        for y in range(0, len(mask[0])):
-            for z in range(0, len(mask[0, 0])):
-                new = np.zeros(11)
-                if mask[x, y, z] < 1000:
-                    new[int(mask[x, y, z])] = 1
-                    newTruth[x, y, z] = new
-                else:
-                    new[int(mask[x, y, z]) - 1000 + 165] = 1
-                    newTruth[x, y, z] = new
-    return newTruth
+def sortLabels(data):
+    totals = np.empty(333)
+    for x in range(0, 333):
+        totals[x] = np.sum(data == x)
+    sortedIndex = np.argsort(totals)
+    return sortedIndex
 
 
 def main():
-    #Constructing all the layers for the model
-    input_layer = keras.layers.Input(shape=(100, 148, 3))
-    conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
-    conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
-    pool1 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1b)
-    conv2a = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(pool1)
-    conv2b = keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(conv2a)
-    pool2 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv2b)
-    conv3a = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(pool2)
-    conv3b = keras.layers.Conv2D(filters=96, kernel_size=(3, 3), activation='relu', padding='same')(conv3a)
-
-    dconv3a = keras.layers.Conv2DTranspose(filters=96, kernel_size=(3, 3), padding='same')(conv3b)
-    dconv3b = keras.layers.Conv2DTranspose(filters=96, kernel_size=(3, 3), padding='same')(dconv3a)
-    unpool2 = keras.layers.UpSampling2D(size=(2, 2))(dconv3b)
-    cat2 = keras.layers.concatenate([conv2b, unpool2])
-    dconv2a = keras.layers.Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same')(cat2)
-    dconv2b = keras.layers.Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same')(dconv2a)
-    unpool1 = keras.layers.UpSampling2D(size=(2, 2))(dconv2b)
-    cat1 = keras.layers.concatenate([conv1b, unpool1])
-    dconv1a = keras.layers.Conv2DTranspose(filters=32, kernel_size=(3, 3), padding='same')(cat1)
-    dconv1b = keras.layers.Conv2DTranspose(filters=32, kernel_size=(3, 3), padding='same')(dconv1a)
-
-    output = keras.layers.Conv2D(filters=11, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
-
-    model = keras.models.Model(input_layer, output)
-    opt = keras.optimizers.Adam(learning_rate=0.0005)
-    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
-
-    #Loading in al images
-    arrayData, layerTruth = getData()
+    trainingArrayData, arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    layerTruth = convertTruth(layerTruth)
+    arrayData = multichannel(arrayData)
+    totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
+    totalImage = totalImage + 400
+    sortedIndexes = sortLabels(trainingArrayData)
+    predictions = np.empty((34, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
+    print("Predicting Labels")
+    for x in range(0, 340, 10):
+        model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
+        opt = keras.optimizers.Adam(learning_rate=0.0005)
+        model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
+        model.evaluate(arrayData, layerTruth)
+        history = model.predict(arrayData)
+        history = deconvertTruth(history)
+        predictions[int(x/10)] = history
 
-    #print(len(layerTruth))
-    #print(len(layerTruth[0]))
-    #print(len(layerTruth[0, 0]))
-    #print(len(layerTruth[0, 0, 0]))
+    np.flip(sortedIndexes)
+    print("Filling in from least to greatest")
+    for x in sortedIndexes:
+        model = int(x/10)
+        label = x % 10
+        for a in range(0, len(totalImage)):
+            for b in range(0, len(totalImage[0])):
+                for c in range(0, len(totalImage[0, 0])):
+                    if totalImage[a, b, c] == 400 and predictions[model, a, b, c] == label:
+                        totalImage[a, b, c] = x
+        print("The unique labels are: ")
+        print(np.unique(totalImage))
+        img = nib.Nifti1Image(totalImage, np.eye(4))
+        nib.save(img, 'checkpoint' + '.nii.gz')
 
-    #print(len(arrayData))
-
-    #Loops through in groups of 10, creating a model for each group
-    for x in range(0, 332, 10):
-        #decreasing the labels so that the ones we care about are from 0 to 9
-        layerTruthNew = layerTruth - x
-        #Setting everything outside that range to 10
-        layerTruthNew[layerTruthNew < 0] = 10
-        layerTruthNew[layerTruthNew > 9] = 10
-        #Changing data to 1 hot arrays, and multichaneling it
-        arrayTruth = convertTruth(layerTruthNew)
-        arrayDataMult = multichannel(arrayData)
-        #training and saving each model
-        history = model.fit(arrayDataMult, arrayTruth, epochs=epochs, batch_size=100)
-
-        model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
+    imageGen(totalImage)
 
 
 if __name__ == "__main__":
     main()
-

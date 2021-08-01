@@ -295,6 +295,7 @@ def main():
         history = deconvertTruth(history)
         predictions[int(x/10)] = history
 
+    np.flip(sortedIndexes)
     print("Filling in from least to greatest")
     for x in sortedIndexes:
         model = int(x/10)

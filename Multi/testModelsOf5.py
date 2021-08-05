@@ -311,7 +311,6 @@ def main():
     trainingArrayData, arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
-    layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
     arrayData = multichannel(arrayData)
     totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))

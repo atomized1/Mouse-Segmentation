@@ -43,7 +43,7 @@ def dice_metric_label(y_true, y_pred, label):
         for y in range(0, len(y_true[0])):
             for z in range(0, len(y_true[0, 0])):
                 y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
-    
+
     y_predFiltered = y_predFiltered.astype(int)
     y_trueReshaped = y_trueReshaped.astype(int)
     intersect = y_predFiltered & y_trueReshaped
@@ -338,7 +338,7 @@ def main():
                     if totalImage[a, b, c] == 400 and predictions[model, a, b, c] == label:
                         totalImage[a, b, c] = x
 
-        dice_metric_label(predictions[model] + (model * 10), layerTruth, x)
+        dice_metric_label(layerTruth, predictions[model] + (model * 10), x)
         img = nib.Nifti1Image(totalImage, np.eye(4))
         nib.save(img, 'checkpoint' + '.nii.gz')
 

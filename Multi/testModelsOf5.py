@@ -32,6 +32,38 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 
+def dice_metric_label(y_true, y_pred, label):
+    y_predFiltered = y_pred == label
+    if label < 166:
+        y_trueFiltered = y_true == label
+    else:
+        y_trueFiltered = y_true == label + 1000 - 165
+    y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
+    for x in range(0, len(y_true)):
+        for y in range(0, len(y_true[0])):
+            for z in range(0, len(y_true[0, 0])):
+                y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
+
+    y_predFiltered = y_predFiltered.astype(int)
+    y_trueReshaped = y_trueReshaped.astype(int)
+    intersect = y_predFiltered & y_trueReshaped
+    intersect = intersect.astype(int)
+    intersect = intersect.sum()
+    y_predFiltered = y_predFiltered.sum()
+    y_trueReshaped = y_trueReshaped.sum()
+
+    print(y_trueReshaped, y_predFiltered)
+
+    hard_dice = 2 * intersect / (y_predFiltered + y_trueReshaped)
+
+    f = open("DiceScores.txt", "a")
+    f.write(str(label) + " " + str(hard_dice) + "\n")
+    f.close()
+
+    print(label, hard_dice)
+    return y_predFiltered, y_trueReshaped
+
+
 def getData():
     # A fuction that loads in the data from a list of files
     # Inputs: none
@@ -279,6 +311,7 @@ def main():
     trainingArrayData, arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 3))
     layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    layerTruth = np.rot90(layerTruth, axes=(1, 3))
     layerTruth = convertTruth(layerTruth)
     arrayData = multichannel(arrayData)
     totalImage = np.zeros((len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
@@ -305,8 +338,8 @@ def main():
                 for c in range(0, len(totalImage[0, 0])):
                     if totalImage[a, b, c] == 400 and predictions[model, a, b, c] == label:
                         totalImage[a, b, c] = x
-        print("The unique labels are: ")
-        print(np.unique(totalImage))
+
+        dice_metric_label(predictions[model] + model, layerTruth, x)
         img = nib.Nifti1Image(totalImage, np.eye(4))
         nib.save(img, 'checkpoint' + '.nii.gz')
 

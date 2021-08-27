@@ -119,8 +119,8 @@ def initialize(imageList, maskList):
         slices = slices + len(data[0])
         print(slices)
 
-    arrayData = np.empty([slices, 1, 148, 100])
-    arrayTruth = np.empty([slices, 1, 148, 100])
+    arrayData = np.empty([slices, 1, 180, 100])
+    arrayTruth = np.empty([slices, 1, 180, 100])
 
     #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
     start = 0
@@ -132,11 +132,15 @@ def initialize(imageList, maskList):
         truth = mask.get_fdata()
         data = np.rot90(data, axes=(0, 1))  #Rotating data so the thickest side is in the 0 index
         truth = np.rot90(truth, axes=(0, 1))
+        if len(data[0]) < 180:
+            np.append(data, np.zeros(180 - len(data[0]), 100))
+            np.append(truth, np.zeros(180 - len(data[0]), 100))
+
         print(imageList[file])
         for x in range(0, len(data)):
-            arrayData[x + start, 0] = data[x, 0:148]
-            arrayTruth[x + start, 0] = truth[x, 0:148]
-        start = start + len(data)
+            arrayData[x + start, 0] = data[x, :]
+            arrayTruth[x + start, 0] = truth[x, :]
+        start = start + 180
         print("File Loaded")
 
     return arrayData, arrayTruth
@@ -173,7 +177,7 @@ def convertTruth(mask):
 
 
 def main():
-    input_layer = keras.layers.Input(shape=(100, 148, 3))
+    input_layer = keras.layers.Input(shape=(100, 180, 3))
     conv1a = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
     conv1b = keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
     pool1 = keras.layers.MaxPool2D(pool_size=(2, 2))(conv1b)

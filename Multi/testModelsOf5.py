@@ -283,8 +283,9 @@ def imageGen(labels):
     plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
-    img = nib.Nifti1Image(labels, np.eye(4))
-    nib.save(img, 'results' + str(sys.argv[1]) + '.nii.gz')
+    for x in range(0, len(labels), 180):
+        img = nib.Nifti1Image(labels, np.eye(4))
+        nib.save(img, 'results' + str(sys.argv[1]) + str(x) + '.nii.gz')
 
 
 def multichannel(data):

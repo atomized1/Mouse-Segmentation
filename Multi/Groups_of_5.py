@@ -130,8 +130,6 @@ def initialize(imageList, maskList):
         data = normalize(data) #Adjusting the data using mean and std
         mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
         truth = mask.get_fdata()
-        data = np.rot90(data, axes=(0, 1))  #Rotating data so the thickest side is in the 0 index
-        truth = np.rot90(truth, axes=(0, 1))
         if len(data[0]) < 180:
             np.append(data, np.zeros(180 - len(data[0]), 100))
             np.append(truth, np.zeros(180 - len(data[0]), 100))

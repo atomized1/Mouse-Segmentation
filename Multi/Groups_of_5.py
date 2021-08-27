@@ -138,6 +138,7 @@ def initialize(imageList, maskList):
 
         print(imageList[file])
         for x in range(0, len(data)):
+            print(len(data))
             arrayData[x + start, 0] = data[x, :]
             arrayTruth[x + start, 0] = truth[x, :]
         start = start + 180

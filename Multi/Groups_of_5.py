@@ -134,9 +134,12 @@ def initialize(imageList, maskList):
         data = np.rot90(data, axes=(0, 1))
         truth = np.rot90(truth, axes=(0, 1))
         print(len(data))
+        print(len(data[0]))
         if len(data) < 180:
             truth = np.append(truth, np.zeros((180 - len(data), 200, 100)))
             data = np.append(data, np.zeros((180 - len(data), 200, 100)))
+        print(len(data))
+        print(len(data[0]))
         data = np.rot90(data, axes=(0, 1))
         truth = np.rot90(truth, axes=(0, 1))
 

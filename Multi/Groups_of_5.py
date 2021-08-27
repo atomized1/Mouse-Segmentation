@@ -131,12 +131,11 @@ def initialize(imageList, maskList):
         mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
         truth = mask.get_fdata()
         if len(data[0]) < 180:
-            np.append(data, np.zeros(180 - len(data[0]), 100))
-            np.append(truth, np.zeros(180 - len(data[0]), 100))
+            np.append(data, np.zeros((180 - len(data[0]), 100)))
+            np.append(truth, np.zeros((180 - len(data[0]), 100)))
 
         print(imageList[file])
         for x in range(0, len(data)):
-            print(len(data))
             arrayData[x + start, 0] = data[x, :]
             arrayTruth[x + start, 0] = truth[x, :]
         start = start + 180

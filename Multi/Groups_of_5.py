@@ -119,8 +119,8 @@ def initialize(imageList, maskList):
         slices = slices + len(data[0])
         print(slices)
 
-    arrayData = np.empty([slices, 1, 180, 100])
-    arrayTruth = np.empty([slices, 1, 180, 100])
+    arrayData = np.empty([180 * len(imageList), 1, 180, 100])
+    arrayTruth = np.empty([180 * len(imageList), 1, 180, 100])
 
     #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
     start = 0

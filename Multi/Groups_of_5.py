@@ -124,7 +124,10 @@ def initialize(imageList, maskList):
 
     #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
     start = 0
+    print("The length is " + str(len(imageList)))
+    count = 0
     for file in range(0, len(imageList)):
+        print("We are on file " + str(count))
         image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[file])))
         data = image.get_fdata()
         data = normalize(data) #Adjusting the data using mean and std
@@ -149,6 +152,7 @@ def initialize(imageList, maskList):
             arrayData[x + start, 0] = data[x, :]
             arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
         start = start + 180
+        count += 1
         print("File Loaded")
 
     return arrayData, arrayTruth

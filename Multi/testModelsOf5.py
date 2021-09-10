@@ -152,24 +152,35 @@ def initialize(imageList, maskList):
         slices = slices + len(data[0])
         print(slices)
 
-    arrayData = np.empty([slices, 1, 148, 100])
-    arrayTruth = np.empty([slices, 1, 148, 100])
+    arrayData = np.empty([200 * len(imageList), 1, 180, 100])
+    arrayTruth = np.empty([200 * len(imageList), 1, 180, 100])
 
     #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
     start = 0
+    print("The length is " + str(len(imageList)))
+    count = 0
     for file in range(0, len(imageList)):
+        print("file " + str(count))
         image = nib.load(os.path.normpath(os.path.join(dirnam, imageList[file])))
         data = image.get_fdata()
         data = normalize(data) #Adjusting the data using mean and std
         mask = nib.load(os.path.normpath(os.path.join(dirnam, maskList[file])))
         truth = mask.get_fdata()
-        data = np.rot90(data, axes=(0, 1))  #Rotating data so the thickest side is in the 0 index
+
+        data = np.rot90(data, axes=(0, 1))
         truth = np.rot90(truth, axes=(0, 1))
+        if len(data) < 180:
+            truth = np.append(truth, np.zeros((180 - len(data), len(truth[0]), 100)), axis=0)
+            data = np.append(data, np.zeros((180 - len(data), len(data[0]), 100)), axis=0)
+        data = np.rot90(data, axes=(0, 1))
+        truth = np.rot90(truth, axes=(0, 1))
+
         print(imageList[file])
-        for x in range(0, len(data)):
-            arrayData[x + start, 0] = data[x, 0:148]
-            arrayTruth[x + start, 0] = truth[x, 0:148]
-        start = start + len(data)
+        for x in range(0, min([len(data), len(truth)])):
+            arrayData[x + start, 0] = data[x, :]
+            arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
+        start = start + 180
+        count += 1
         print("File Loaded")
 
     return arrayData, arrayTruth
@@ -283,8 +294,8 @@ def imageGen(labels):
     plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
-    for x in range(0, len(labels), 180):
-        img = nib.Nifti1Image(labels, np.eye(4))
+    for x in range(0, len(labels) - 200, 200):
+        img = nib.Nifti1Image(labels[x:x + 200], np.eye(4))
         nib.save(img, 'results' + str(sys.argv[1]) + str(x) + '.nii.gz')
 
 
@@ -319,7 +330,7 @@ def main():
     sortedIndexes = sortLabels(trainingArrayData)
     predictions = np.empty((34, len(layerTruth), len(layerTruth[0]), len(layerTruth[0, 0])))
     print("Predicting Labels")
-    for x in range(0, 340, 10):
+    for x in range(0, 160, 10):
         model = keras.models.load_model(sys.argv[1] + '/Model' + str(x), custom_objects={"dice_metric": dice_metric})
         opt = keras.optimizers.Adam(learning_rate=0.0005)
         model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])

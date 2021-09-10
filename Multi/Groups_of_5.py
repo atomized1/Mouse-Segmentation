@@ -147,7 +147,7 @@ def initialize(imageList, maskList):
         print(imageList[file])
         for x in range(0, len(data)):
             arrayData[x + start, 0] = data[x, :]
-            arrayTruth[x + start, 0] = truth[x, :]
+            arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
         start = start + 180
         print("File Loaded")
 

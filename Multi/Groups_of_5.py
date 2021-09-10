@@ -145,7 +145,7 @@ def initialize(imageList, maskList):
         truth = np.rot90(truth, axes=(0, 1))
 
         print(imageList[file])
-        for x in range(0, min(len(data), len(truth))):
+        for x in range(0, min(len(data), len(truth)) - 1):
             arrayData[x + start, 0] = data[x, :]
             arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
         start = start + 180

@@ -86,8 +86,9 @@ def normalize(data):
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
-                total += data[x][y][z]
-                count += 1
+                for a in range(0, len(data[0, 0, 0])):
+                    total += data[x][y][z][a]
+                    count += 1
     mean = total / count
 
     #Using that mean to calculate variance, and then Standard deviation
@@ -95,16 +96,18 @@ def normalize(data):
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
-                variance = pow(data[x][y][z] - mean, 2)
-                totalVariance += variance
+                for a in range(0, len(data[0, 0, 0])):
+                    variance = pow(data[x][y][z][a] - mean, 2)
+                    totalVariance += variance
     Std = totalVariance / count
 
     #Adjusting all values appropriately
     for x in range(0, len(data)):
         for y in range(0, len(data[1])):
             for z in range(0, len(data[1][1])):
-                data[x][y][z] -= mean
-                data[x][y][z] /= Std
+                for a in range(0, len(data[0, 0, 0])):
+                    data[x][y][z][a] -= mean
+                    data[x][y][z][a] /= Std
 
     return data
 

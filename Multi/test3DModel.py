@@ -298,7 +298,7 @@ def deconvertTruth(labels):
                         if biggestNum < labels[x,y,z,b,a]:
                             biggestNum = labels[x,y,z,b,a]
                             biggestLabel = a
-                    newTruth[x,y,z] = biggestLabel
+                    newTruth[x,y,z,b] = biggestLabel
     return newTruth
 
 
@@ -309,8 +309,8 @@ def imageGen(labels):
     plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
-    for x in range(0, len(labels) - 100, 100):
-        img = nib.Nifti1Image(labels[x:x + 100], np.eye(4))
+    for x in range(0, len(labels)):
+        img = nib.Nifti1Image(labels[x], np.eye(4))
         nib.save(img, 'results' + str(sys.argv[1]) + str(x) + '.nii.gz')
 
 

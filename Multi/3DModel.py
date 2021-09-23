@@ -10,9 +10,9 @@ BURST = 10
 
 def dice_metric(y_true, y_pred):
 
-    y_pred = tf.math.argmax(y_pred, axis=3)
+    y_pred = tf.math.argmax(y_pred, axis=4)
     #print(y_pred)
-    y_true = tf.math.argmax(y_true, axis=3)
+    y_true = tf.math.argmax(y_true, axis=4)
     #print(y_true)
 
     inse = tf.equal(y_pred, y_true)

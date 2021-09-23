@@ -172,23 +172,29 @@ def multichannel(data):
 
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), 11), dtype=np.dtype('int32'))
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), len(mask[0,0,0]), 1), dtype=np.dtype('int32'))
     for x in range(0, len(mask)):
         print(x)
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
-                new = np.zeros(11)
-                if mask[x, y, z] < 1000:
-                    new[int(mask[x, y, z])] = 1
-                    newTruth[x, y, z] = new
-                else:
-                    new[int(mask[x, y, z]) - 1000 + 165] = 1
-                    newTruth[x, y, z] = new
-    return newTruth
+                for a in range(0, len(mask[0, 0, 0])):
+                    new = np.zeros(3)
+                    if mask[x, y, z, a] == 0:
+                        new[0] = 1
+                        newTruth[x, y, z, a] = new
+                    elif mask[x,y,z,a] <= 68 or (mask[x,y,z,a] <= 129 and mask[x,y,z,a >= 118] or mask[x,y,z,a] == 131 or mask[x,y,z,a] == 151 or (mask[x,y,z,a] <= 157 and mask[x,y,z,a] >= 155) or mask[x,y,z,a] == 161 or mask[x,y,z,a] == 163 or mask[x,y,z,a] == 165):
+                        new[1] = 1
+                        newTruth[x, y, z, a] = new
+                    elif (mask[x,y,z,a] <= 117 and mask[x,y,z,a] >= 69) or mask[x,y,z,a] == 130 or (mask[x,y,z,a] <= 150 and mask[x,y,z,a] >= 132) or (mask[x,y,z,a] <= 154 and mask[x,y,z,a] >= 152) or (mask[x,y,z,a] <= 160 and mask[x,y,z,a] >= 158) or mask[x,y,z,a] == 162 or mask[x,y,z,a] == 164 or mask[x,y,z,a] == 166:
+                        new[2] = 1
+                        newTruth[x, y, z, a] = new
+                    else:
+                        print("FUCK")
+        return newTruth
 
 
 def main():
-    input_layer = keras.layers.Input(shape=(200, 100, 180, 3))
+    input_layer = keras.layers.Input(shape=(200, 100, 180, 1))
     conv1a = keras.layers.Conv3D(filters=32, kernel_size=(3, 3, 3), activation='relu', padding='same')(input_layer)
     conv1b = keras.layers.Conv3D(filters=32, kernel_size=(3, 3, 3), activation='relu', padding='same')(conv1a)
     pool1 = keras.layers.MaxPool3D(pool_size=(2, 2, 2))(conv1b)
@@ -231,8 +237,8 @@ def main():
         layerTruthNew[layerTruthNew < 0] = 10
         layerTruthNew[layerTruthNew > 9] = 10
         arrayTruth = convertTruth(layerTruthNew)
-        arrayDataMult = multichannel(arrayData)
-        history = model.fit(arrayDataMult, arrayTruth, epochs=epochs, batch_size=100)
+        #arrayDataMult = multichannel(arrayData)
+        history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
 
         model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
 

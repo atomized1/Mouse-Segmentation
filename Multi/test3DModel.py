@@ -345,6 +345,9 @@ def main():
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     model.evaluate(arrayData, layerTruth, batch_size=1)
     history = model.predict(arrayData, batch_size=1)
+    
+    dice_metric_label(layerTruth[1], history[1], 1)
+    
     totalImage = deconvertTruth(history)
 
     imageGen(totalImage)

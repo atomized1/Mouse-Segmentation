@@ -179,6 +179,8 @@ def convertTruth(mask):
             for z in range(0, len(mask[0, 0])):
                 for a in range(0, len(mask[0, 0, 0])):
                     new = np.zeros(3)
+                    if mask[x,y,z,a] > 1000:
+                        mask[x,y,z,a] -= 1000
                     if mask[x, y, z, a] == 0:
                         new[0] = 1
                         newTruth[x, y, z, a] = new

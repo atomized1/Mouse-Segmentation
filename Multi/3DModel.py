@@ -188,7 +188,7 @@ def convertTruth(mask):
 def main():
     input_layer = keras.layers.Input(shape=(200, 100, 180, 3))
     conv1a = keras.layers.Conv3D(filters=32, kernel_size=(64, 64, 64), activation='relu', padding='same')(input_layer)
-    conv1b = keras.layers.Conv3D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(conv1a)
+    conv1b = keras.layers.Conv3D(filters=32, kernel_size=(64, 64, 64), activation='relu', padding='same')(conv1a)
     pool1 = keras.layers.MaxPool3D(pool_size=(2, 2, 2))(conv1b)
     conv2a = keras.layers.Conv3D(filters=64, kernel_size=(64, 64, 64), activation='relu', padding='same')(pool1)
     conv2b = keras.layers.Conv3D(filters=64, kernel_size=(64, 64, 64), activation='relu', padding='same')(conv2a)

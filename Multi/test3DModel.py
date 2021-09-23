@@ -304,9 +304,9 @@ def deconvertTruth(labels):
 
 def imageGen(labels):
     plt.figure(1)
-    print(labels[70, 60, 60])
+    #print(labels[70, 60, 60])
     labels = labels.astype('int32')
-    plt.imshow(labels[70, :, :])
+    #plt.imshow(labels[70, :, :])
     plt.savefig('visuals.png')
 
     for x in range(0, len(labels)):

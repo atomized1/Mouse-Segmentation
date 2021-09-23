@@ -343,8 +343,8 @@ def main():
     model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam()
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
-    model.evaluate(arrayData, layerTruth)
-    history = model.predict(arrayData)
+    model.evaluate(arrayData, layerTruth, batch_size=1)
+    history = model.predict(arrayData, batch_size=1)
     totalImage = deconvertTruth(history)
 
     imageGen(totalImage)

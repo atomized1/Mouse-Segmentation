@@ -222,8 +222,8 @@ def main():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
 
     arrayData, layerTruth = getData()
-    arrayData = np.rot90(arrayData, axes=(1, 3))
-    layerTruth = np.rot90(layerTruth, axes=(1, 3))
+    arrayData = np.rot90(arrayData, axes=(1, 4))
+    layerTruth = np.rot90(layerTruth, axes=(1, 4))
 
     print(len(layerTruth))
     print(len(layerTruth[0]))
@@ -232,15 +232,12 @@ def main():
 
     print(len(arrayData))
 
-    for x in range(0, 332, 10):
-        layerTruthNew = layerTruth - x
-        layerTruthNew[layerTruthNew < 0] = 10
-        layerTruthNew[layerTruthNew > 9] = 10
-        arrayTruth = convertTruth(layerTruthNew)
-        #arrayDataMult = multichannel(arrayData)
-        history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
 
-        model.save(os.path.join(dirnam, "modelsOf5/Model" + str(x)))
+    arrayTruth = convertTruth(layerTruth)
+    #arrayDataMult = multichannel(arrayData)
+    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
+
+    model.save(os.path.join(dirnam, "modelsOf5/Model"))
 
 
 if __name__ == "__main__":

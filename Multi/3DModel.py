@@ -239,7 +239,7 @@ def main():
 
     arrayTruth = convertTruth(layerTruth)
     #arrayDataMult = multichannel(arrayData)
-    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=100)
+    history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=1)
 
     model.save(os.path.join(dirnam, "modelsOf5/Model"))
 

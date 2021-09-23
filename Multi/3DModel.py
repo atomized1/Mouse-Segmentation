@@ -19,8 +19,8 @@ def dice_metric(y_true, y_pred):
     #print(inse)
     inse = tf.reduce_sum(tf.cast(inse, tf.float32))
     #print(inse)
-    l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0])
-    r = len(y_true) * len(y_true[0]) * len(y_true[0, 0])
+    l = len(y_pred) * len(y_pred[0]) * len(y_pred[0, 0]) * len(y_pred[0, 0, 0])
+    r = len(y_true) * len(y_true[0]) * len(y_true[0, 0]) * len(y_pred[0, 0, 0])
     l = tf.cast(l, tf.float32)
     r = tf.cast(r, tf.float32)
 
@@ -219,7 +219,7 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(dconv1a)
 
-    output = keras.layers.Conv2D(filters=3, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
+    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='sigmoid', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.0005)

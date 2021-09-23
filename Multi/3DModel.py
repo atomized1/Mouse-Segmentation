@@ -222,7 +222,7 @@ def main():
     output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='sigmoid', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
-    opt = keras.optimizers.Adam(learning_rate=0.0005)
+    opt = keras.optimizers.Adam(learning_rate=0.00005)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
 
     arrayData, layerTruth = getData()

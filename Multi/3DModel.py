@@ -119,8 +119,8 @@ def initialize(imageList, maskList):
         slices = slices + len(data[0])
         print(slices)
 
-    arrayData = np.empty([200 * len(imageList), 1, 180, 100])
-    arrayTruth = np.empty([200 * len(imageList), 1, 180, 100])
+    arrayData = np.empty([len(imageList), 1, 200, 180, 100])
+    arrayTruth = np.empty([len(imageList), 1, 200, 180, 100])
 
     #Loading in each slice.  The start value offsets by the total amount of slices loaded, so not slice is overridden
     start = 0
@@ -145,12 +145,14 @@ def initialize(imageList, maskList):
         truth = np.rot90(truth, axes=(0, 1))
 
         print(imageList[file])
-        for x in range(0, min([len(data), len(truth)])):
-            arrayData[x + start, 0] = data[x, :]
-            arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
-        start = start + 180
-        count += 1
-        print("File Loaded")
+        arrayData[file, 1] = data[0:200, 0:180, 0:100]
+        arrayTruth[file, 1] = truth[0:200, 0:180, 0:100]
+        #for x in range(0, min([len(data), len(truth)])):
+        #    arrayData[x + start, 0] = data[x, :]
+        #    arrayTruth[x + start, 0] = truth[x, 0:len(data[0])]
+        #start = start + 180
+        #count += 1
+        #print("File Loaded")
 
     return arrayData, arrayTruth
 

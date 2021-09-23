@@ -184,7 +184,7 @@ def convertTruth(mask):
                     if mask[x, y, z, a] == 0:
                         new[0] = 1
                         newTruth[x, y, z, a] = new
-                    elif mask[x,y,z,a] <= 68 or (129 >= mask[x, y, z, a] >= 118) or mask[x, y, z, a] == 131 or mask[x, y, z, a] == 151 or (
+                    elif 1 <= mask[x,y,z,a] <= 68 or (129 >= mask[x, y, z, a] >= 118) or mask[x, y, z, a] == 131 or mask[x, y, z, a] == 151 or (
                             157 >= mask[x, y, z, a] >= 155) or mask[x, y, z, a] == 161 or mask[x, y, z, a] == 163 or mask[x, y, z, a] == 165:
                         new[1] = 1
                         newTruth[x, y, z, a] = new
@@ -219,7 +219,7 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(dconv1a)
 
-    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='sigmoid', padding='same')(dconv1b)
+    output = keras.layers.Conv2D(filters=3, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam()

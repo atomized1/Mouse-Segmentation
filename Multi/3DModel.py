@@ -219,10 +219,10 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), padding='same')(dconv1a)
 
-    output = keras.layers.Conv2D(filters=3, kernel_size=(3, 3), activation='sigmoid', padding='same')(dconv1b)
+    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='sigmoid', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
-    opt = keras.optimizers.Adam()
+    opt = keras.optimizers.Adam(0.001)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric])
 
     arrayData, layerTruth = getData()

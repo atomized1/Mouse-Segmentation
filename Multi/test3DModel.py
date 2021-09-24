@@ -313,6 +313,18 @@ def imageGen(labels):
     for x in range(0, len(labels)):
         img = nib.Nifti1Image(labels[x], np.eye(4))
         nib.save(img, 'results' + str(sys.argv[1]) + str(x) + '.nii.gz')
+        
+        
+def imageGen2(labels):
+    plt.figure(1)
+    #print(labels[70, 60, 60])
+    labels = labels.astype('int32')
+    #plt.imshow(labels[70, :, :])
+    plt.savefig('visuals.png')
+
+    for x in range(0, len(labels)):
+        img = nib.Nifti1Image(labels[x], np.eye(4))
+        nib.save(img, 'results' + str(sys.argv[1]) + str(x) + 'True.nii.gz')
 
 
 def multichannel(data):
@@ -346,6 +358,8 @@ def main():
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     model.evaluate(arrayData, layerTruth, batch_size=1)
     history = model.predict(arrayData, batch_size=1)
+
+    imageGen2(layerTruth)
 
     totalImage = deconvertTruth(history)
     #print(history.shape)

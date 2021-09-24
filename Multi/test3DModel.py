@@ -105,10 +105,10 @@ def getData():
                 alt = 0
 
     #Loading in all the data from the filenames using the initialize function defined below
-    arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
+    #arrayData, arrayTruth = initialize(imageListTrain, maskListTrain)
     arrayPredictData, arrayPredictTruth = initialize(imageListPredict, maskListPredict)
 
-    return arrayTruth, arrayPredictData, arrayPredictTruth
+    return arrayPredictData, arrayPredictTruth
 
 
 def normalize(data):
@@ -313,8 +313,8 @@ def imageGen(labels):
     for x in range(0, len(labels)):
         img = nib.Nifti1Image(labels[x], np.eye(4))
         nib.save(img, 'results' + str(sys.argv[1]) + str(x) + '.nii.gz')
-        
-        
+
+
 def imageGen2(labels):
     plt.figure(1)
     #print(labels[70, 60, 60])
@@ -348,7 +348,7 @@ def sortLabels(data):
 
 
 def main():
-    trainingArrayData, arrayData, layerTruth = getData()
+    arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
     layerTruth = np.rot90(layerTruth, axes=(1, 4))
     layerTruth = convertTruth(layerTruth)

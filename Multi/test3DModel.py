@@ -348,6 +348,8 @@ def main():
 
     totalImage = deconvertTruth(history)
     print(history.shape)
+    print(layerTruth.shape)
+    print(totalImage.shape)
     dice_metric_label(layerTruth[1], totalImage[1], 1)
 
     imageGen(totalImage)

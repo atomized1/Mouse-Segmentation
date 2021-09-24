@@ -351,6 +351,7 @@ def main():
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
     layerTruth = np.rot90(layerTruth, axes=(1, 4))
+    imageGen2(layerTruth)
     layerTruth = convertTruth(layerTruth)
 
     model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric})
@@ -358,8 +359,6 @@ def main():
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     model.evaluate(arrayData, layerTruth, batch_size=1)
     history = model.predict(arrayData, batch_size=1)
-
-    imageGen2(layerTruth)
 
     totalImage = deconvertTruth(history)
     #print(history.shape)

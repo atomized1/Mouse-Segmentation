@@ -219,7 +219,7 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(dconv1a)
 
-    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='sigmoid', padding='same')(dconv1b)
+    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='softmax', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.00001)

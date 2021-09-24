@@ -351,8 +351,9 @@ def main():
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
     layerTruth = np.rot90(layerTruth, axes=(1, 4))
-    imageGen2(layerTruth)
     layerTruth = convertTruth(layerTruth)
+    layerTruthFinal = deconvertTruth(layerTruth)
+    imageGen2(layerTruthFinal)
 
     model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam()

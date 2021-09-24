@@ -282,7 +282,7 @@ def convertTruth(mask):
                         newTruth[x, y, z, a] = new
                     else:
                         print(mask[x,y,z,a])
-        return newTruth
+    return newTruth
 
 
 def deconvertTruth(labels):

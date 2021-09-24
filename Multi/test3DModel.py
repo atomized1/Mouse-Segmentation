@@ -294,7 +294,7 @@ def deconvertTruth(labels):
                 for b in range(0, len(labels[0,0,0])):
                     biggestNum = 0
                     biggestLabel = 0
-                    print(labels[x,y,z,b])
+                    #print(labels[x,y,z,b])
                     for a in range(0, int(sys.argv[2])):
                         if biggestNum < labels[x,y,z,b,a]:
                             biggestNum = labels[x,y,z,b,a]
@@ -348,9 +348,9 @@ def main():
     history = model.predict(arrayData, batch_size=1)
 
     totalImage = deconvertTruth(history)
-    print(history.shape)
-    print(layerTruth.shape)
-    print(totalImage.shape)
+    #print(history.shape)
+    #print(layerTruth.shape)
+    #print(totalImage.shape)
     dice_metric_label(layerTruth[1], totalImage[1], 1)
 
     imageGen(totalImage)

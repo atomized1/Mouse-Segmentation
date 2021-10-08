@@ -30,6 +30,23 @@ def dice_metric(y_true, y_pred):
 
     return hard_dice
 
+def sensitivity1(y_true, y_pred):
+
+    y_pred = tf.math.argmax(y_pred, axis=4)
+    y_true = tf.math.argmax(y_true, axis=4)
+
+    y_predPos = tf.math.equal(y_pred, 1)
+    y_predNegative = tf.math.equal(y_predPos, 0)
+    y_truePos = tf.math.equal(y_true, 1)
+    y_trueNegative = tf.math.equal(y_truePos, 0)
+
+    truePos = tf.equal(y_predPos, y_truePos)
+    falseNeg = tf.equal(y_predNegative, y_truePos)
+    
+    sensitivity = truePos / (truePos + falseNeg)
+    
+    return sensitivity
+
 
 def getData():
     # A fuction that loads in the data from a list of files
@@ -221,7 +238,7 @@ def main():
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.001)
-    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric])
+    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
@@ -238,6 +255,8 @@ def main():
     arrayTruth = convertTruth(layerTruth)
     #arrayDataMult = multichannel(arrayData)
     history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=1)
+
+    print(history.history.keys())
 
     model.save(os.path.join(dirnam, "modelsOf5/Model"))
 

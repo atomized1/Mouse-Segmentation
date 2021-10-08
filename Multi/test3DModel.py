@@ -352,7 +352,7 @@ def smoothImage(image):
     for x in range(0, len(image)):
         for y in range(1, len(image[0]) - 1):
             for z in range(1, len(image[0,0]) - 1):
-                for a in range(1, len(image[0,0,0])):
+                for a in range(1, len(image[0,0,0]) - 1):
                     neighbors = [original_image[x,y,z,a+1], original_image[x,y,z,a-1], original_image[x,y,z+1,a], original_image[x,y,z-1,a], original_image[x,y+1,z,a], original_image[x,y-1,z,a]]
                     counter = Counter(neighbors)
                     if max(counter.values()) > 4:

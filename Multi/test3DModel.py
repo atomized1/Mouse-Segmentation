@@ -363,6 +363,9 @@ def smoothImage(image):
 
 
 def main():
+    counter = Counter([1,1,1,1,0,0])
+    if max(counter.values()) > 4:
+        print(counter.most_common(1)[0,0])
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
     layerTruth = np.rot90(layerTruth, axes=(1, 4))

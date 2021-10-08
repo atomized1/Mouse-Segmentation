@@ -35,8 +35,8 @@ def sensitivity1(y_true, y_pred):
     y_pred = tf.math.argmax(y_pred, axis=4)
     y_true = tf.math.argmax(y_true, axis=4)
 
-    ones = tf.ones(shape=tf.shape(y_pred))
-    zeros = tf.zeros(shape=tf.shape(y_pred))
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
 
     y_predPos = tf.math.equal(y_pred, ones)
     y_predNegative = tf.math.equal(y_predPos, zeros)

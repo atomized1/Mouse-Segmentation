@@ -357,15 +357,12 @@ def smoothImage(image):
                     neighbors = [original_image[x,y,z,a+1], original_image[x,y,z,a-1], original_image[x,y,z+1,a], original_image[x,y,z-1,a], original_image[x,y+1,z,a], original_image[x,y-1,z,a]]
                     counter = Counter(neighbors)
                     if max(counter.values()) > 4:
-                        image[x, y, z] = counter.most_common(1)[0][0]
+                        image[x, y, z, a] = counter.most_common(1)[0][0]
     return image
 
 
 
 def main():
-    counter = Counter([1,1,1,1,1,0])
-    if max(counter.values()) > 4:
-        print(counter.most_common(1)[0][0])
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
     layerTruth = np.rot90(layerTruth, axes=(1, 4))

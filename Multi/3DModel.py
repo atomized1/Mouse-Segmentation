@@ -230,16 +230,16 @@ def convertTruth(mask):
                     if mask[x, y, z, a] == 0:
                         new[0] = 1
                         newTruth[x, y, z, a] = new
-                    elif 1 <= mask[x,y,z,a] <= 68 or (129 >= mask[x, y, z, a] >= 118) or mask[x, y, z, a] == 131 or mask[x, y, z, a] == 151 or (
-                            157 >= mask[x, y, z, a] >= 155) or mask[x, y, z, a] == 161 or mask[x, y, z, a] == 163 or mask[x, y, z, a] == 165:
-                        new[1] = 1
-                        newTruth[x, y, z, a] = new
                     elif mask[x,y,z,a] == 51 or mask[x,y,z,a] == 126:
                         new[3] = 1
                         newTruth[x,y,z,a] = new
                     elif mask[x,y,z,a] == 64 or mask[x,y,z,a] == 166:
                         new[4] = 1
                         newTruth[x,y,z,a] = new
+                    elif 1 <= mask[x,y,z,a] <= 68 or (129 >= mask[x, y, z, a] >= 118) or mask[x, y, z, a] == 131 or mask[x, y, z, a] == 151 or (
+                            157 >= mask[x, y, z, a] >= 155) or mask[x, y, z, a] == 161 or mask[x, y, z, a] == 163 or mask[x, y, z, a] == 165:
+                        new[1] = 1
+                        newTruth[x, y, z, a] = new
                     elif (117 >= mask[x, y, z, a] >= 69) or mask[x, y, z, a] == 130 or (150 >= mask[x, y, z, a] >= 132) or (
                             154 >= mask[x, y, z, a] >= 152) or (160 >= mask[x, y, z, a] >= 158) or mask[x, y, z, a] == 162 or mask[x, y, z, a] == 164 or mask[x, y, z, a] == 166:
                         new[2] = 1

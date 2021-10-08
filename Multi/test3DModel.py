@@ -382,9 +382,11 @@ def main():
     #print(layerTruth.shape)
     #print(totalImage.shape)
     #print(layerTruthFinal)
-    dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
+    for x in range(0, 3):
+        dice_metric_label(layerTruthFinal, totalImage, x)
     totalImage = smoothImage(totalImage)
-    dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
+    for x in range(0, 3):
+        dice_metric_label(layerTruthFinal, totalImage, x)
 
     imageGen(totalImage)
 

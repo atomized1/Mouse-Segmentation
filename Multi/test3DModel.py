@@ -350,6 +350,7 @@ def sortLabels(data):
 def smoothImage(image):
     original_image = image
     for x in range(0, len(image)):
+        print(x)
         for y in range(1, len(image[0]) - 1):
             for z in range(1, len(image[0,0]) - 1):
                 for a in range(1, len(image[0,0,0]) - 1):
@@ -380,9 +381,9 @@ def main():
     #print(history.shape)
     #print(layerTruth.shape)
     #print(totalImage.shape)
-    print(layerTruthFinal)
+    #print(layerTruthFinal)
     dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
-    smoothImage(totalImage)
+    totalImage = smoothImage(totalImage)
     dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
 
     imageGen(totalImage)

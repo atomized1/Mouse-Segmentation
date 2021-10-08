@@ -48,9 +48,9 @@ def sensitivity1(y_true, y_pred):
 
     truePos = tf.cast(truePos, tf.float32)
     falseNeg = tf.cast(falseNeg, tf.float32)
-    
-    truePos = truePos.sum()
-    falseNeg = falseNeg.sum()
+
+    truePos = tf.reduce_sum(truePos)
+    falseNeg = tf.reduce_sum(falseNeg)
 
     sensitivity = truePos / (truePos + falseNeg)
 

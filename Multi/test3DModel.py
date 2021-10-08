@@ -363,7 +363,7 @@ def smoothImage(image):
 
 
 def main():
-    counter = Counter([1,1,1,1,0,0])
+    counter = Counter([1,1,1,1,1,0])
     if max(counter.values()) > 4:
         print(counter.most_common(1)[0,0])
     arrayData, layerTruth = getData()

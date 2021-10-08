@@ -65,6 +65,53 @@ def dice_metric_label(y_true, y_pred, label):
     return y_predFiltered, y_trueReshaped
 
 
+def sensitivity1(y_true, y_pred):
+
+    y_pred = tf.math.argmax(y_pred, axis=4)
+    y_true = tf.math.argmax(y_true, axis=4)
+
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
+
+    y_predPos = tf.math.equal(y_pred, ones)
+    y_predNegative = tf.math.equal(tf.cast(y_predPos, tf.int64), zeros)
+    y_truePos = tf.math.equal(y_true, ones)
+    y_trueNegative = tf.math.equal(tf.cast(y_truePos, tf.int64), zeros)
+
+    truePos = tf.equal(y_predPos, y_truePos)
+    falseNeg = tf.equal(y_predNegative, y_truePos)
+
+    truePos = tf.cast(truePos, tf.float32)
+    falseNeg = tf.cast(falseNeg, tf.float32)
+
+    sensitivity = truePos / (truePos + falseNeg)
+
+    return sensitivity
+
+
+def specificity1(y_true, y_pred):
+    y_pred = tf.math.argmax(y_pred, axis=4)
+    y_true = tf.math.argmax(y_true, axis=4)
+
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
+
+    y_predPos = tf.math.equal(y_pred, ones)
+    y_predNegative = tf.math.equal(tf.cast(y_predPos, tf.int64), zeros)
+    y_truePos = tf.math.equal(y_true, ones)
+    y_trueNegative = tf.math.equal(tf.cast(y_truePos, tf.int64), zeros)
+
+    trueNeg = tf.equal(y_predNegative, y_trueNegative)
+    falsePos = tf.equal(y_predPos, y_trueNegative)
+
+    trueNeg = tf.cast(trueNeg, tf.float32)
+    falsePos = tf.cast(falsePos, tf.float32)
+
+    specificity = trueNeg / (trueNeg + falsePos)
+
+    return specificity
+
+
 def getData():
     # A fuction that loads in the data from a list of files
     # Inputs: none
@@ -370,7 +417,7 @@ def main():
     layerTruthFinal = deconvertTruth(layerTruth)
     #imageGen2(layerTruthFinal)
 
-    model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric})
+    model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric, "sensitivity1": sensitivity1, "specificity1":specificity1})
     opt = keras.optimizers.Adam()
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=[keras.metrics.binary_accuracy, dice_metric])
     model.evaluate(arrayData, layerTruth, batch_size=1)

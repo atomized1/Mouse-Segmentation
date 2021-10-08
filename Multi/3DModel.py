@@ -39,9 +39,9 @@ def sensitivity1(y_true, y_pred):
     zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
 
     y_predPos = tf.math.equal(y_pred, ones)
-    y_predNegative = tf.math.equal(y_predPos, zeros)
+    y_predNegative = tf.math.equal(tf.cast(y_predPos, tf.int64), zeros)
     y_truePos = tf.math.equal(y_true, ones)
-    y_trueNegative = tf.math.equal(y_truePos, zeros)
+    y_trueNegative = tf.math.equal(tf.cast(y_truePos, tf.int64), zeros)
 
     truePos = tf.equal(y_predPos, y_truePos)
     falseNeg = tf.equal(y_predNegative, y_truePos)

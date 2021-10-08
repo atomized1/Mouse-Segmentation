@@ -366,7 +366,7 @@ def main():
     layerTruth = np.rot90(layerTruth, axes=(1, 4))
     layerTruth = convertTruth(layerTruth)
     layerTruthFinal = deconvertTruth(layerTruth)
-    imageGen2(layerTruthFinal)
+    #imageGen2(layerTruthFinal)
 
     model = keras.models.load_model(sys.argv[1] + '/Model', custom_objects={"dice_metric": dice_metric})
     opt = keras.optimizers.Adam()
@@ -379,6 +379,7 @@ def main():
     #print(history.shape)
     #print(layerTruth.shape)
     #print(totalImage.shape)
+    print(layerTruthFinal)
     dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
     smoothImage(totalImage)
     dice_metric_label(layerTruthFinal[1], totalImage[1], 1)

@@ -267,7 +267,7 @@ def main():
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.001)
-    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1])
+    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
@@ -285,7 +285,24 @@ def main():
     #arrayDataMult = multichannel(arrayData)
     history = model.fit(arrayData, arrayTruth, epochs=epochs, batch_size=1)
 
-    print(history.history.keys())
+    print(history.history['loss'])
+    f = open('Results.txt', 'w')
+    f.write('loss')
+    for x in range(0, len(history.history['loss'])):
+        f.write(history.history['loss'][x])
+        f.write('\n')
+    f.write('Dice Metric')
+    for x in range(0, len(history.history['dice_metric'])):
+        f.write(history.history['dice_metric'][x])
+        f.write('\n')
+    f.write('Sensitivity')
+    for x in range(0, len(history.history['sensitivity1'])):
+        f.write(history.history['sensitivity1'][x])
+        f.write('\n')
+    f.write('Specificity')
+    for x in range(0, len(history.history['specificity1'])):
+        f.write(history.history['specificity1'][x])
+        f.write('\n')
 
     model.save(os.path.join(dirnam, "modelsOf5/Model"))
 

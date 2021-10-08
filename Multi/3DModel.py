@@ -45,13 +45,36 @@ def sensitivity1(y_true, y_pred):
 
     truePos = tf.equal(y_predPos, y_truePos)
     falseNeg = tf.equal(y_predNegative, y_truePos)
-    
+
     truePos = tf.cast(truePos, tf.float32)
     falseNeg = tf.cast(falseNeg, tf.float32)
 
     sensitivity = truePos / (truePos + falseNeg)
 
     return sensitivity
+
+
+def specificity1(y_true, y_pred):
+    y_pred = tf.math.argmax(y_pred, axis=4)
+    y_true = tf.math.argmax(y_true, axis=4)
+
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
+
+    y_predPos = tf.math.equal(y_pred, ones)
+    y_predNegative = tf.math.equal(tf.cast(y_predPos, tf.int64), zeros)
+    y_truePos = tf.math.equal(y_true, ones)
+    y_trueNegative = tf.math.equal(tf.cast(y_truePos, tf.int64), zeros)
+
+    trueNeg = tf.equal(y_predNegative, y_trueNegative)
+    falsePos = tf.equal(y_predPos, y_trueNegative)
+
+    trueNeg = tf.cast(trueNeg, tf.float32)
+    falsePos = tf.cast(falsePos, tf.float32)
+
+    specificity = trueNeg / (trueNeg + falsePos)
+
+    return specificity
 
 
 def getData():

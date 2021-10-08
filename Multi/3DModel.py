@@ -31,12 +31,18 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 def sensitivity1(y_true, y_pred):
-
+    y_true = tf.math.argmax(y_true)
+    y_pred = tf.math.argmax(y_pred)
+    
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)
+    y_pred = tf.cast(tf.math.equal(y_pred, ones), tf.int64)
+    
     neg_y_true = 1 - y_true
     neg_y_pred = 1 - y_pred
-    fp = K.sum(neg_y_true * y_pred)
-    tn = K.sum(neg_y_true * neg_y_pred)
-    specificity = tn / (tn + fp + K.epsilon())
+    fp = tf.reduce_sum(neg_y_true * y_pred)
+    tn = tf.reduce_sum(neg_y_true * neg_y_pred)
+    specificity = tn / (tn + fp)
     return specificity
 
 

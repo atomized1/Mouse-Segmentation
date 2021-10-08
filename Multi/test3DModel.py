@@ -39,14 +39,14 @@ def dice_metric_label(y_true, y_pred, label):
         y_trueFiltered = y_true == label
     else:
         y_trueFiltered = y_true == label + 1000 - 165
-    y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
-    for x in range(0, len(y_true)):
-        for y in range(0, len(y_true[0])):
-            for z in range(0, len(y_true[0, 0])):
-                y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
+    #y_trueReshaped = np.zeros([len(y_true), len(y_true[0]), len(y_true[0, 0])])
+    #for x in range(0, len(y_true)):
+        #for y in range(0, len(y_true[0])):
+            #for z in range(0, len(y_true[0, 0])):
+                #y_trueReshaped[x, y, z] = y_trueFiltered[x, y, z, 0]
 
     y_predFiltered = y_predFiltered.astype(int)
-    y_trueReshaped = y_trueReshaped.astype(int)
+    y_trueReshaped = y_trueFiltered.astype(int)
     intersect = y_predFiltered & y_trueReshaped
     intersect = intersect.astype(int)
     intersect = intersect.sum()

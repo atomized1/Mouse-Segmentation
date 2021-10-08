@@ -289,19 +289,19 @@ def main():
     f = open('Results.txt', 'w')
     f.write('loss')
     for x in range(0, len(history.history['loss'])):
-        f.write(history.history['loss'][x])
+        f.write(str(history.history['loss'][x]))
         f.write('\n')
     f.write('Dice Metric')
     for x in range(0, len(history.history['dice_metric'])):
-        f.write(history.history['dice_metric'][x])
+        f.write(str(history.history['dice_metric'][x]))
         f.write('\n')
     f.write('Sensitivity')
     for x in range(0, len(history.history['sensitivity1'])):
-        f.write(history.history['sensitivity1'][x])
+        f.write(str(history.history['sensitivity1'][x]))
         f.write('\n')
     f.write('Specificity')
     for x in range(0, len(history.history['specificity1'])):
-        f.write(history.history['specificity1'][x])
+        f.write(str(history.history['specificity1'][x]))
         f.write('\n')
 
     model.save(os.path.join(dirnam, "modelsOf5/Model"))

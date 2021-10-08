@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
+from collections import Counter
 
 dirnam = os.path.dirname(__file__)
 
@@ -346,6 +347,18 @@ def sortLabels(data):
     sortedIndex = np.argsort(totals)
     return sortedIndex
 
+def smoothImage(image):
+    original_image = image
+    for x in range(1, len(image) - 1):
+        for y in range(1, len(image[0]) - 1):
+            for z in range(1, len(image[0,0]) - 1):
+                neighbors = [original_image[x,y,z+1], original_image[x,y,z-1], original_image[x,y+1,z], original_image[x,y-1,z], original_image[x+1,y,z], original_image[x-1,y,z]]
+                counter = Counter(neighbors)
+                if max(counter.values()) > 4:
+                    image[x, y, z] = counter.most_common(1)[0][0]
+    return image
+
+
 
 def main():
     arrayData, layerTruth = getData()
@@ -361,11 +374,14 @@ def main():
     model.evaluate(arrayData, layerTruth, batch_size=1)
     history = model.predict(arrayData, batch_size=1)
 
+
     totalImage = deconvertTruth(history)
     #print(history.shape)
     #print(layerTruth.shape)
     #print(totalImage.shape)
-    dice_metric_label(layerTruth[1], totalImage[1], 1)
+    dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
+    smoothImage(totalImage)
+    dice_metric_label(layerTruthFinal[1], totalImage[1], 1)
 
     imageGen(totalImage)
 

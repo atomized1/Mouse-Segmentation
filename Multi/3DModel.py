@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 dirnam = os.path.dirname(__file__)
-epochs = 1
+epochs = 20
 BURST = 10
 
 def dice_metric(y_true, y_pred):
@@ -287,19 +287,19 @@ def main():
 
     print(history.history['loss'])
     f = open('Results.txt', 'w')
-    f.write('loss')
+    f.write('loss\n')
     for x in range(0, len(history.history['loss'])):
         f.write(str(history.history['loss'][x]))
         f.write('\n')
-    f.write('Dice Metric')
+    f.write('Dice Metric\n')
     for x in range(0, len(history.history['dice_metric'])):
         f.write(str(history.history['dice_metric'][x]))
         f.write('\n')
-    f.write('Sensitivity')
+    f.write('Sensitivity\n')
     for x in range(0, len(history.history['sensitivity1'])):
         f.write(str(history.history['sensitivity1'][x]))
         f.write('\n')
-    f.write('Specificity')
+    f.write('Specificity\n')
     for x in range(0, len(history.history['specificity1'])):
         f.write(str(history.history['specificity1'][x]))
         f.write('\n')

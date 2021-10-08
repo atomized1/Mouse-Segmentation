@@ -218,24 +218,24 @@ def multichannel(data):
 
 def convertTruth(mask):
     #Designing a 1-hot array that can be compared to the output of the larger model
-    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), len(mask[0,0,0]), 5), dtype=np.dtype('int32'))
+    newTruth = np.empty((len(mask), len(mask[0]), len(mask[0, 0]), len(mask[0,0,0]), 3), dtype=np.dtype('int32'))
     for x in range(0, len(mask)):
         print(x)
         for y in range(0, len(mask[0])):
             for z in range(0, len(mask[0, 0])):
                 for a in range(0, len(mask[0, 0, 0])):
-                    new = np.zeros(5)
+                    new = np.zeros(3)
                     if mask[x,y,z,a] > 1000:
                         mask[x,y,z,a] -= 1000
                     if mask[x, y, z, a] == 0:
                         new[0] = 1
                         newTruth[x, y, z, a] = new
-                    elif mask[x,y,z,a] == 51 or mask[x,y,z,a] == 126:
-                        new[3] = 1
-                        newTruth[x,y,z,a] = new
-                    elif mask[x,y,z,a] == 64 or mask[x,y,z,a] == 166:
-                        new[4] = 1
-                        newTruth[x,y,z,a] = new
+                    #elif mask[x,y,z,a] == 51 or mask[x,y,z,a] == 126:
+                        #new[3] = 1
+                        #newTruth[x,y,z,a] = new
+                    #elif mask[x,y,z,a] == 64 or mask[x,y,z,a] == 166:
+                        #new[4] = 1
+                        #newTruth[x,y,z,a] = new
                     elif 1 <= mask[x,y,z,a] <= 68 or (129 >= mask[x, y, z, a] >= 118) or mask[x, y, z, a] == 131 or mask[x, y, z, a] == 151 or (
                             157 >= mask[x, y, z, a] >= 155) or mask[x, y, z, a] == 161 or mask[x, y, z, a] == 163 or mask[x, y, z, a] == 165:
                         new[1] = 1
@@ -270,7 +270,7 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(dconv1a)
 
-    output = keras.layers.Conv3D(filters=5, kernel_size=(3, 3, 3), activation='softmax', padding='same')(dconv1b)
+    output = keras.layers.Conv3D(filters=3, kernel_size=(3, 3, 3), activation='softmax', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.001)

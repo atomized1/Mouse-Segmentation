@@ -271,7 +271,8 @@ def main():
     a = np.array([[[1, 0, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
     b = tf.constant(a)
     c = np.array([[[1, 0, 0], [1, 0, 0]], [[1, 0, 0], [0, 1, 0]]])
-    print(sensitivity1(b, b))
+    d = tf.constant(c)
+    print(sensitivity1(b, d))
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))

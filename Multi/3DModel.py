@@ -270,6 +270,7 @@ def main():
 
     a = np.array([[[1, 0, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
     b = tf.constant(a)
+    c = np.array([[[1, 0, 0], [1, 0, 0]], [[1, 0, 0], [0, 1, 0]]])
     print(sensitivity1(b, b))
 
     arrayData, layerTruth = getData()

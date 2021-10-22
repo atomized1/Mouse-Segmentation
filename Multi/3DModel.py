@@ -31,11 +31,24 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 def sensitivity1(y_true, y_pred):
-    y_true = tf.math.argmax(y_true, axis=2)
-    y_pred = tf.math.argmax(y_pred, axis=2)
+    y_true = tf.math.argmax(y_true, axis=4)
+    y_pred = tf.math.argmax(y_pred, axis=4)
 
-    print(y_true)
-    print(y_pred)
+    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
+    y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)
+    y_pred = tf.cast(tf.math.equal(y_pred, ones), tf.int64)
+
+    neg_y_true = ones - y_true
+    neg_y_pred = ones - y_pred
+    tp = tf.reduce_sum(y_true * y_pred)
+    fn = tf.reduce_sum(y_true * neg_y_pred)
+    specificity = tp / (tp + fn)
+    return specificity
+
+
+def specificity1(y_true, y_pred):
+    y_true = tf.math.argmax(y_true, axis=4)
+    y_pred = tf.math.argmax(y_pred, axis=4)
 
     ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
     y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)
@@ -46,29 +59,6 @@ def sensitivity1(y_true, y_pred):
     fp = tf.reduce_sum(neg_y_true * y_pred)
     tn = tf.reduce_sum(neg_y_true * neg_y_pred)
     specificity = tn / (tn + fp)
-    return specificity
-
-
-def specificity1(y_true, y_pred):
-    y_pred = tf.math.argmax(y_pred, axis=4)
-    y_true = tf.math.argmax(y_true, axis=4)
-
-    ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
-    zeros = tf.zeros(shape=tf.shape(y_pred), dtype=tf.int64)
-
-    y_predPos = tf.math.equal(y_pred, ones)
-    y_predNegative = tf.math.equal(tf.cast(y_predPos, tf.int64), zeros)
-    y_truePos = tf.math.equal(y_true, ones)
-    y_trueNegative = tf.math.equal(tf.cast(y_truePos, tf.int64), zeros)
-
-    trueNeg = tf.equal(y_predNegative, y_trueNegative)
-    falsePos = tf.equal(y_predPos, y_trueNegative)
-
-    trueNeg = tf.cast(trueNeg, tf.float32)
-    falsePos = tf.cast(falsePos, tf.float32)
-
-    specificity = trueNeg / (trueNeg + falsePos)
-
     return specificity
 
 
@@ -276,6 +266,7 @@ def main():
     c = np.array([[[0, 1, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
     d = tf.constant(c)
     print(sensitivity1(b, d))
+    print(specificity1(b, d))
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))

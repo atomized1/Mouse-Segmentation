@@ -31,9 +31,9 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 def sensitivity1(y_true, y_pred):
-    y_true = tf.math.argmax(y_true, axis=3)
-    y_pred = tf.math.argmax(y_pred, axis=3)
-    
+    y_true = tf.math.argmax(y_true, axis=2)
+    y_pred = tf.math.argmax(y_pred, axis=2)
+
     print(y_true)
     print(y_pred)
 

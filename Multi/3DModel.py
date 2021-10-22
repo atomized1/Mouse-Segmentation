@@ -33,6 +33,9 @@ def dice_metric(y_true, y_pred):
 def sensitivity1(y_true, y_pred):
     y_true = tf.math.argmax(y_true)
     y_pred = tf.math.argmax(y_pred)
+    
+    print(y_true)
+    print(y_pred)
 
     ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
     y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)

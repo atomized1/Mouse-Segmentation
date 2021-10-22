@@ -31,8 +31,8 @@ def dice_metric(y_true, y_pred):
     return hard_dice
 
 def sensitivity1(y_true, y_pred):
-    y_true = tf.math.argmax(y_true, axis=2)
-    y_pred = tf.math.argmax(y_pred, axis=2)
+    y_true = tf.math.argmax(y_true, axis=4)
+    y_pred = tf.math.argmax(y_pred, axis=4)
 
     ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
     y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)
@@ -47,8 +47,8 @@ def sensitivity1(y_true, y_pred):
 
 
 def specificity1(y_true, y_pred):
-    y_true = tf.math.argmax(y_true, axis=2)
-    y_pred = tf.math.argmax(y_pred, axis=2)
+    y_true = tf.math.argmax(y_true, axis=4)
+    y_pred = tf.math.argmax(y_pred, axis=4)
 
     ones = tf.ones(shape=tf.shape(y_pred), dtype=tf.int64)
     y_true = tf.cast(tf.math.equal(y_true, ones), tf.int64)
@@ -260,13 +260,6 @@ def main():
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
-
-    a = np.array([[[1, 0, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
-    b = tf.constant(a)
-    c = np.array([[[1, 0, 0], [1, 0, 0]], [[1, 0, 0], [0, 1, 0]]])
-    d = tf.constant(c)
-    print(sensitivity1(b, d))
-    print(specificity1(b, d))
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))

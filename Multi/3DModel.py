@@ -263,7 +263,7 @@ def main():
 
     a = np.array([[[1, 0, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
     b = tf.constant(a)
-    c = np.array([[[0, 1, 0], [0, 1, 0]], [[1, 0, 0], [0, 1, 0]]])
+    c = np.array([[[1, 0, 0], [1, 0, 0]], [[1, 0, 0], [0, 1, 0]]])
     d = tf.constant(c)
     print(sensitivity1(b, d))
     print(specificity1(b, d))

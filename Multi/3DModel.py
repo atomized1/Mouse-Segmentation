@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 dirnam = os.path.dirname(__file__)
-epochs = 30
+epochs = 300
 BURST = 10
 
 def dice_metric(y_true, y_pred):

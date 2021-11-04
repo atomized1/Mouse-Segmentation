@@ -229,6 +229,8 @@ def convertTruth(mask):
                             154 >= mask[x, y, z, a] >= 152) or (160 >= mask[x, y, z, a] >= 158) or mask[x, y, z, a] == 162 or mask[x, y, z, a] == 164 or mask[x, y, z, a] == 166:
                         new[2] = 1
                         newTruth[x, y, z, a] = new
+                    else:
+                        print("YES!!")
 
     return newTruth
 

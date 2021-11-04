@@ -257,11 +257,12 @@ def main():
     dconv1a = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(cat1)
     dconv1b = keras.layers.Conv3DTranspose(filters=96, kernel_size=(3, 3, 3), activation='relu', padding='same')(dconv1a)
 
-    output = keras.layers.Conv3D(filters=5, kernel_size=(3, 3, 3), activation='softmax', padding='same')(dconv1b)
+    output = keras.layers.Conv3D(filters=5, kernel_size=(3, 3, 3), activation='linear', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.SGD(learning_rate=0.0001)
-    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
+    loss = keras.losses.CategoricalCrossentropy(from_logits=True)
+    model.compile(optimizer=opt, loss=loss, metrics=[dice_metric, sensitivity1, specificity1])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))

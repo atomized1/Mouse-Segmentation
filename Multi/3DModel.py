@@ -230,7 +230,7 @@ def convertTruth(mask):
                         new[2] = 1
                         newTruth[x, y, z, a] = new
                     else:
-                        print("YES!!")
+                        print("Error")
 
     return newTruth
 
@@ -260,7 +260,7 @@ def main():
     output = keras.layers.Conv3D(filters=5, kernel_size=(3, 3, 3), activation='softmax', padding='same')(dconv1b)
 
     model = keras.models.Model(input_layer, output)
-    opt = keras.optimizers.Adam(learning_rate=0.0001)
+    opt = keras.optimizers.SGD(learning_rate=0.0001)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
 
     arrayData, layerTruth = getData()

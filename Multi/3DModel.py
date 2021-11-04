@@ -259,7 +259,7 @@ def main():
 
     model = keras.models.Model(input_layer, output)
     opt = keras.optimizers.Adam(learning_rate=0.001)
-    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
+    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=[dice_metric, sensitivity1, specificity1])
 
     arrayData, layerTruth = getData()
     arrayData = np.rot90(arrayData, axes=(1, 4))
